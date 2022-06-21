@@ -11,11 +11,15 @@
 
 	<packaging>pom</packaging>
 
+
 	<modules>
 		<module>coupon</module>
 		<module>member</module>
 		<module>order</module>
 		<module>product</module>
 		<module>ware</module>
+		<module>renren-fast</module>
+		<module>renren-generator</module>
+		<module>common</module>
 	</modules>
 </project>
