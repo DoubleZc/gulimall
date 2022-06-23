@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.zcx.gulimall.member.fegin.CouponFeginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +31,25 @@ import com.zcx.common.utils.R;
 public class MemberController {
     @Autowired
     private MemberService memberService;
+
+
+    @Autowired
+    private CouponFeginService couponFeginService;
+
+
+    @RequestMapping("/test")
+    public  R test(){
+
+        MemberEntity memberEntity = new MemberEntity();
+        memberEntity.setNickname("张三");
+
+        R r = couponFeginService.memeberCoupon();
+        Object coupons = r.get("coupons");
+
+        return new R().ok().put("member",memberEntity).put("coupons",coupons);
+    }
+
+
 
     /**
      * 列表
