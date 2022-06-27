@@ -1,4 +1,4 @@
-package com.zcx.gulimall;
+package com.zcx.gulimall.ware;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

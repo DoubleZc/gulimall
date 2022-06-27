@@ -1,0 +1,52 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+    gateway:
+      routes:
+
+
+        #        路由规则名字
+        - id: test
+          #          路由地址
+          uri: http://www.baidu.com
+          #          断言，查看是否满足，满足则路由到相应地址
+          predicates:
+            #          url为路由地址 baidu为携带参数，若携带参数有则路由
+            - Query=url,baidu
+
+
+        - id: moduls
+          uri: lb://gulimall-product
+          predicates:
+              - Path=/api/product/**
+          filters:
+              - RewritePath=/api(?<segment>/?.*),$\{segment}
+
+
+
+
+
+        - id: admin_route
+          #        负载均衡，后为nacos服务名
+          uri: lb://renren-fast
+          #          断言地址是否是已/api/开头
+          predicates:
+            - Path=/api/**
+          #            过滤器，将路径重写
+          #          /api/**  ->   /renren-fast/***
+          filters:
+            - RewritePath=/api(?<segment>/?.*),/renren-fast$\{segment}
+
+
+
+
+
+
+
+
+server:
+  port: 88
+
+
