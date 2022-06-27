@@ -21,3 +21,10 @@ mybatis-plus:
 
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+alibaba:
+  cloud:
+    access-key: LTAI5tSbQYf1aV4rXVSywh4T
+    secret-key: 7jYoQP05280Hxc9QPfK13ayIfis6DU
+    oss:
+      endpoint: https://oss-cn-nanjing.aliyuncs.com
+

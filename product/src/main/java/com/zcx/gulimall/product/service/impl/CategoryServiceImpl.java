@@ -60,7 +60,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                             return item;
                         }
                         //按sort排序
-                ).sorted((o1, o2) -> o1.getSort() - o2.getSort())
+                ).sorted((o1, o2) -> ( o1.getSort()==null?0:o1.getSort()) - (o2.getSort()==null?0: o2.getSort()) )
+
                 .collect(Collectors.toList());
 
     }

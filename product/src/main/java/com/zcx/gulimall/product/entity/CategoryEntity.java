@@ -67,11 +67,4 @@ public class CategoryEntity implements Serializable {
 	@TableField(exist = false)
 	private List<CategoryEntity> children;
 
-
-	public Integer getSort() {
-
-
-		return sort==null? 0:sort;
-
-	}
 }

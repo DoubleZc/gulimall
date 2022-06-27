@@ -74,6 +74,19 @@ public class CategoryController {
         return R.ok();
     }
 
+    @PutMapping("/list")
+    public R updateList(@RequestBody List<CategoryEntity> entities)
+    {
+
+
+        System.out.println(entities);
+        categoryService.updateBatchById(entities);
+        return R.ok();
+
+    }
+
+
+
     /**
      * 删除
      */
@@ -86,4 +99,15 @@ public class CategoryController {
         return R.ok();
     }
 
+    /**
+     * 删除
+     */
+    @DeleteMapping("/list")
+    //@RequiresPermissions("product:category:delete")
+    public R deleteList(@RequestBody List<CategoryEntity> entities){
+//        检查菜单是否被引用
+        categoryService.removeBatchByIds(entities);
+
+        return R.ok();
+    }
 }
