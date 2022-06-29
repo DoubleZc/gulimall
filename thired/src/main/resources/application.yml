@@ -1,10 +1,14 @@
 spring:
   cloud:
     nacos:
-      config:
+      discovery:
         server-addr: localhost:8848
-        namespace: gateway
   application:
-    name: gulimall-gateway
+    name: thired
+
+
+server:
+  port: 89
+
 
 

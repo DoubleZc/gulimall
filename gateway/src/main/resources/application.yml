@@ -24,7 +24,12 @@ spring:
           filters:
               - RewritePath=/api(?<segment>/?.*),$\{segment}
 
-
+        - id: oss
+          uri: lb://thired
+          predicates:
+            - Path=/api/thired/**
+          filters:
+            - RewritePath=/api/thired(?<segment>/?.*),$\{segment}
 
 
 
@@ -38,6 +43,7 @@ spring:
           #          /api/**  ->   /renren-fast/***
           filters:
             - RewritePath=/api(?<segment>/?.*),/renren-fast$\{segment}
+
 
 
 

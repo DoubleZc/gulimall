@@ -1,10 +1,13 @@
 package com.zcx.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.zcx.gulimall.product.entity.BrandEntity;
@@ -12,6 +15,7 @@ import com.zcx.gulimall.product.service.BrandService;
 import com.zcx.common.utils.PageUtils;
 import com.zcx.common.utils.R;
 
+import javax.validation.Valid;
 
 
 /**
@@ -53,12 +57,15 @@ public class BrandController {
     /**
      * 保存
      */
-    @RequestMapping("/save")
+    @PostMapping
 //    @RequiresPermissions("product:brand:save")
-    public R save(@RequestBody BrandEntity brand){
-		brandService.save(brand);
+    public R save(@Validated @RequestBody BrandEntity brand){
+            brandService.save(brand);
+            return R.ok();
 
-        return R.ok();
+
+
+
     }
 
     /**

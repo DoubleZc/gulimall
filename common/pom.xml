@@ -35,22 +35,16 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>8.0.29</version>
 		</dependency>
-
+<!--字段校验-->
 		<dependency>
-			<groupId>com.alibaba.cloud</groupId>
-			<artifactId>aliyun-oss-spring-boot-starter</artifactId>
-			<version>1.0.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.aliyun</groupId>
-					<artifactId>aliyun-java-sdk-core</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+			<version>2.7.0</version>
 		</dependency>
 		<dependency>
-			<groupId>com.aliyun</groupId>
-			<artifactId>aliyun-java-sdk-core</artifactId>
-			<version>4.5.0</version>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>6.1.5.Final</version>
 		</dependency>
 
 

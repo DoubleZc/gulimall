@@ -1,0 +1,10 @@
+spring:
+  cloud:
+    nacos:
+      config:
+        server-addr: localhost:8848
+        namespace: thired
+        extension-configs:
+         - data-id: oss.yaml
+           group: DEFAULT_GROUP
+           refush: true
