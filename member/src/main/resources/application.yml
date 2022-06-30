@@ -4,9 +4,6 @@ spring:
     url: jdbc:mysql://192.168.182.128:3306/gulimall_ums?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: root
-  cloud:
-    nacos:
-      server-addr: localhost:8848
   application:
     name: gulimall-member
 mybatis-plus:

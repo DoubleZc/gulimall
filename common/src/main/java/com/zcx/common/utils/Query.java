@@ -11,7 +11,7 @@ package com.zcx.common.utils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zcx.common.utils.xss.SQLFilter;
+import com.zcx.common.xss.SQLFilter;
 
 import org.apache.commons.lang.StringUtils;
 

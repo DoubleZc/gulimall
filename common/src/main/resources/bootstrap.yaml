@@ -1,11 +1,7 @@
 spring:
-  application:
-    name: thired
   cloud:
     nacos:
-      discovery:
+      config:
+        shared-configs:
+          - data-id: nacos.yaml
         server-addr: 192.168.182.128:8848
-server:
-  port: 89
-
-

@@ -3,9 +3,7 @@ package com.zcx.gulimall.product.service.impl;
 import com.sun.corba.se.impl.ior.JIDLObjectKeyTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -23,6 +21,33 @@ import com.zcx.gulimall.product.service.CategoryService;
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
+
+
+    @Override
+    public Long[] findPath(Long catelogId) {
+
+        List<Long>path=new ArrayList<>();
+        path.add(catelogId);
+        List<Long> init = getPath(catelogId, path);
+        Collections.reverse(init);
+        return  init.toArray(new Long[0]);
+
+
+    }
+
+
+    public  List<Long> getPath(Long catelogId,List<Long> path)
+    {
+        CategoryEntity entity = getById(catelogId);
+        if (entity.getParentCid()!=0)
+        {
+
+            path.add(entity.getParentCid());
+            getPath(entity.getParentCid(),path);
+
+        }
+        return path;
+    }
 
 
     //删除数组

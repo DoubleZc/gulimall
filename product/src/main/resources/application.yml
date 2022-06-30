@@ -6,20 +6,10 @@ spring:
     password: root
   application:
     name: gulimall-product
-  cloud:
-    nacos:
-      discovery:
-        server-addr: localhost:8848
-mybatis-plus:
-  mapper-locations: classpath:/mapper/*/*.xml
-  global-config:
-    db-config:
-      id-type: auto
-#      逻辑删除
-      logic-delete-value: 0
-      logic-not-delete-value: 1
 
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+
+
+server:
+  port: 500
 

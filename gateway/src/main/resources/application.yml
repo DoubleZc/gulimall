@@ -1,12 +1,7 @@
 spring:
   cloud:
-    nacos:
-      discovery:
-        server-addr: localhost:8848
     gateway:
       routes:
-
-
         #        路由规则名字
         - id: test
           #          路由地址
@@ -15,7 +10,6 @@ spring:
           predicates:
             #          url为路由地址 baidu为携带参数，若携带参数有则路由
             - Query=url,baidu
-
 
         - id: moduls
           uri: lb://gulimall-product
@@ -43,15 +37,8 @@ spring:
           #          /api/**  ->   /renren-fast/***
           filters:
             - RewritePath=/api(?<segment>/?.*),/renren-fast$\{segment}
-
-
-
-
-
-
-
-
-
+  application:
+    name: gulimall-gateway
 server:
   port: 88
 

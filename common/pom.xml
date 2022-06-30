@@ -7,8 +7,9 @@
 		<groupId>com.gulimall</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<modelVersion>4.0.0</modelVersion>
 
+
+	<modelVersion>4.0.0</modelVersion>
 	<artifactId>common</artifactId>
 	<description>每个微服务的依赖 工具</description>
 

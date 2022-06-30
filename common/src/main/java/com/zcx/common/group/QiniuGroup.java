@@ -6,12 +6,12 @@
  * 版权所有，侵权必究！
  */
 
-package com.zcx.common.utils.group;
+package com.zcx.common.group;
 
 /**
- * 阿里云
+ * 七牛
  *
  * @author Mark sunlightcs@gmail.com
  */
-public interface AliyunGroup {
+public interface QiniuGroup {
 }

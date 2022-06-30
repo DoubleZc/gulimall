@@ -8,9 +8,9 @@
 
 package com.zcx.common.utils;
 
-import com.zcx.common.utils.group.AliyunGroup;
-import com.zcx.common.utils.group.QcloudGroup;
-import com.zcx.common.utils.group.QiniuGroup;
+import com.zcx.common.group.AliyunGroup;
+import com.zcx.common.group.QcloudGroup;
+import com.zcx.common.group.QiniuGroup;
 import java.util.Optional;
 import java.util.stream.Stream;
 

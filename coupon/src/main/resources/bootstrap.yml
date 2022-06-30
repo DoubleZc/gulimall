@@ -4,17 +4,18 @@ spring:
   cloud:
     nacos:
       config:
-        server-addr: 127.0.0.1:8848
         namespace: coupon
+        server-addr: 192.168.182.128:8848
         extension-configs:
-         - data-id: datasource.yaml
-           group: dev     # 默认为DEFAULT_GROUP
-           refresh: true            # 是否动态刷新，默认为false
+          - data-id: datasource.yaml
+            group: dev
+            refresh: true
 
-        - data-id: mybatis.yaml
-          group: dev
-          refresh: true
+          - data-id: mybatis.yaml
+            group: dev
+            refresh: true
 
-        - data-id: other.yaml
-          group: dev
-          refresh: true
+          - data-id: other.yaml
+            group: dev
+            refresh: true
+

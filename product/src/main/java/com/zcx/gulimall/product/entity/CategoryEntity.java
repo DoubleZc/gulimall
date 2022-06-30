@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 /**
@@ -63,8 +64,11 @@ public class CategoryEntity implements Serializable {
 	private Integer productCount;
 
 
+
+	@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 	//注释改字段在数据库中是否存在
 	@TableField(exist = false)
 	private List<CategoryEntity> children;
+
 
 }

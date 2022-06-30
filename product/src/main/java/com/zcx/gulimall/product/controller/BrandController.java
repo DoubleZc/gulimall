@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.zcx.common.valid.AddGroup;
+import com.zcx.common.valid.UpdateGroup;
+import com.zcx.common.valid.UpdateStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -59,7 +62,7 @@ public class BrandController {
      */
     @PostMapping
 //    @RequiresPermissions("product:brand:save")
-    public R save(@Validated @RequestBody BrandEntity brand){
+    public R save(@Validated({AddGroup.class}) @RequestBody BrandEntity brand){
             brandService.save(brand);
             return R.ok();
 
@@ -73,10 +76,22 @@ public class BrandController {
      */
     @PutMapping
   //  @RequiresPermissions("product:brand:update")
-    public R update(@RequestBody BrandEntity brand){
+    public R update(@Validated({UpdateGroup.class})@RequestBody BrandEntity brand){
 		brandService.updateById(brand);
         return R.ok();
     }
+
+    /**
+     * 修改状态
+     */
+    @PutMapping("/status")
+    //  @RequiresPermissions("product:brand:update")
+    public R updateStatus(@Validated({UpdateStatus.class})@RequestBody BrandEntity brand){
+        brandService.updateById(brand);
+        return R.ok();
+    }
+
+
 
     /**
      * 删除

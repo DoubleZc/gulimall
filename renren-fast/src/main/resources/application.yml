@@ -5,7 +5,7 @@ server:
     max-threads: 1000
     min-spare-threads: 30
     connection-timeout:  5000ms
-  port: 8080
+  port: 8096
   servlet:
     context-path: /renren-fast
 
@@ -41,11 +41,6 @@ spring:
       matching-strategy: ANT_PATH_MATCHER
   application:
     name: renren-fast
-  cloud:
-    nacos:
-      discovery:
-        server-addr: localhost:8848
-
 
 #  resources:
 #    add-mappings: false

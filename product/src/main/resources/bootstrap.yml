@@ -1,5 +1,0 @@
-server:
-  port: 500
-spring:
-  application:
-    name: gulimall-product

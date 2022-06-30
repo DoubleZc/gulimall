@@ -6,7 +6,7 @@
  * 版权所有，侵权必究！
  */
 
-package com.zcx.common.utils.group;
+package com.zcx.common.group;
 
 /**
  * 腾讯云

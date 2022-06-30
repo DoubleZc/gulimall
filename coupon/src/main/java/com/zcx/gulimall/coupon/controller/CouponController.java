@@ -39,17 +39,6 @@ public class CouponController {
     @Autowired
     private CouponService couponService;
 
-    private String name;
-    private int age;
-
-
-
-    @RequestMapping("test")
-    public R test(){
-
-        return R.ok().put("name",name).put("age",age);
-
-    }
 
     /**
      * 列表
