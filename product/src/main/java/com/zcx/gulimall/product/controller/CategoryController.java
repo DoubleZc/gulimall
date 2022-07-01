@@ -36,7 +36,6 @@ public class CategoryController {
     public R list(){
 
         List<CategoryEntity> entities= categoryService.listWithTree();
-
         return R.ok().put("data", entities);
     }
 
@@ -48,14 +47,13 @@ public class CategoryController {
     //@RequiresPermissions("product:category:info")
     public R info(@PathVariable("catId") Long catId){
 		CategoryEntity category = categoryService.getById(catId);
-
-        return R.ok().put("category", category);
+        return R.ok().put("data", category);
     }
 
     /**
      * 保存
      */
-    @PostMapping
+    @RequestMapping("/save")
 //    @RequiresPermissions("product:category:save")
     public R save(@RequestBody CategoryEntity category){
 		categoryService.save(category);
@@ -66,20 +64,16 @@ public class CategoryController {
     /**
      * 修改
      */
-    @PutMapping
+    @RequestMapping("/update")
   //  @RequiresPermissions("product:category:update")
     public R update(@RequestBody CategoryEntity category){
-		categoryService.updateById(category);
-
+		categoryService.updateDetail(category);
         return R.ok();
     }
 
-    @PutMapping("/list")
+    @RequestMapping("/update/list")
     public R updateList(@RequestBody List<CategoryEntity> entities)
     {
-
-
-        System.out.println(entities);
         categoryService.updateBatchById(entities);
         return R.ok();
 
@@ -90,24 +84,22 @@ public class CategoryController {
     /**
      * 删除
      */
-    @DeleteMapping
+    @RequestMapping("/delete")
     //@RequiresPermissions("product:category:delete")
     public R delete(@RequestBody Long[] catIds){
 //        检查菜单是否被引用
         categoryService.removeMenu(Arrays.asList(catIds));
-
         return R.ok();
     }
 
     /**
      * 删除
      */
-    @DeleteMapping("/list")
+    @RequestMapping("/delete/list")
     //@RequiresPermissions("product:category:delete")
     public R deleteList(@RequestBody List<CategoryEntity> entities){
 //        检查菜单是否被引用
         categoryService.removeBatchByIds(entities);
-
         return R.ok();
     }
 }

@@ -40,8 +40,7 @@ public class BrandController {
     @RequestMapping("/list")
   //  @RequiresPermissions("product:brand:list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = brandService.queryPage(params);
-
+        PageUtils page = brandService.findPage(params);
         return R.ok().put("page", page);
     }
 
@@ -60,7 +59,7 @@ public class BrandController {
     /**
      * 保存
      */
-    @PostMapping
+    @RequestMapping("/save")
 //    @RequiresPermissions("product:brand:save")
     public R save(@Validated({AddGroup.class}) @RequestBody BrandEntity brand){
             brandService.save(brand);
@@ -74,17 +73,17 @@ public class BrandController {
     /**
      * 修改
      */
-    @PutMapping
+    @RequestMapping("/update")
   //  @RequiresPermissions("product:brand:update")
     public R update(@Validated({UpdateGroup.class})@RequestBody BrandEntity brand){
-		brandService.updateById(brand);
+		brandService.updateDetail(brand);
         return R.ok();
     }
 
     /**
      * 修改状态
      */
-    @PutMapping("/status")
+    @RequestMapping("/update/status")
     //  @RequiresPermissions("product:brand:update")
     public R updateStatus(@Validated({UpdateStatus.class})@RequestBody BrandEntity brand){
         brandService.updateById(brand);

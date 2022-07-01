@@ -2,6 +2,8 @@ package com.zcx.gulimall.product.service.impl;
 
 import com.alibaba.nacos.api.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.zcx.gulimall.product.entity.AttrEntity;
+import com.zcx.gulimall.product.vo.AttrVo;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ import com.zcx.gulimall.product.service.AttrGroupService;
 
 @Service("attrGroupService")
 public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEntity> implements AttrGroupService {
+
     @Override
     public PageUtils queryPage(Map<String, Object> params, Long catelogId) {
 

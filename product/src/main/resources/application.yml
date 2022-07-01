@@ -7,7 +7,15 @@ spring:
   application:
     name: gulimall-product
 
-
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*/*.xml
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 0
+      logic-not-delete-value: 1
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 
 server:

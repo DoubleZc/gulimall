@@ -1,6 +1,9 @@
 package com.zcx.gulimall.product.service.impl;
 
 import com.sun.corba.se.impl.ior.JIDLObjectKeyTemplate;
+import com.zcx.gulimall.product.service.CategoryBrandRelationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,11 +20,26 @@ import com.zcx.common.utils.Query;
 import com.zcx.gulimall.product.dao.CategoryDao;
 import com.zcx.gulimall.product.entity.CategoryEntity;
 import com.zcx.gulimall.product.service.CategoryService;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
+    @Autowired
+    @Lazy
+    private CategoryBrandRelationService categoryBrandRelationService;
 
+
+    @Override
+    @Transactional
+    public void updateDetail(CategoryEntity category) {
+        updateById(category);
+        categoryBrandRelationService.updateCategory(category.getCatId(),category.getName());
+
+
+
+
+    }
 
     @Override
     public Long[] findPath(Long catelogId) {
