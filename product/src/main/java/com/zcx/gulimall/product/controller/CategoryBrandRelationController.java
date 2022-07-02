@@ -15,7 +15,6 @@ import com.zcx.common.utils.PageUtils;
 import com.zcx.common.utils.R;
 
 
-
 /**
  * 品牌分类关联
  *
@@ -25,87 +24,92 @@ import com.zcx.common.utils.R;
  */
 @RestController
 @RequestMapping("product/categorybrandrelation")
-public class CategoryBrandRelationController {
-    @Autowired
-    private CategoryBrandRelationService categoryBrandRelationService;
+public class CategoryBrandRelationController
+{
+	@Autowired
+	private CategoryBrandRelationService categoryBrandRelationService;
 
 
+	/**
+	 * 列表
+	 */
+	@GetMapping("/catelog/list")
+	//  @RequiresPermissions("product:categorybrandrelation:list")
+	public R catelogList(@RequestParam("brandId") Long brandId)
+	{
+		LambdaQueryWrapper<CategoryBrandRelationEntity> wrapper = new LambdaQueryWrapper<>();
+		wrapper.eq(CategoryBrandRelationEntity::getBrandId, brandId);
+		List<CategoryBrandRelationEntity> list = categoryBrandRelationService.list(wrapper);
+		return R.ok().put("data", list);
+	}
 
 
-
-    /**
-     * 列表
-     */
-    @GetMapping("/catelog/list")
-    //  @RequiresPermissions("product:categorybrandrelation:list")
-    public R catelogList(@RequestParam("brandId") Long brandId){
-        LambdaQueryWrapper<CategoryBrandRelationEntity> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(CategoryBrandRelationEntity::getBrandId,brandId);
-        List<CategoryBrandRelationEntity> list = categoryBrandRelationService.list(wrapper);
-        return R.ok().put("data",list);
-    }
+	/**
+	 * product/categorybrandrelation/brands/list
+	 */
+	@GetMapping("/brands/list")
+	public R getBrandByCatId(@RequestParam Long catId)
+	{
+		List<CategoryBrandRelationEntity> categoryBrandRelationEntity = categoryBrandRelationService.getBrandByCatId(catId);
+		return R.ok().put("data", categoryBrandRelationEntity);
+	}
 
 
+	/**
+	 * 列表
+	 */
+	@RequestMapping("/list")
+	//  @RequiresPermissions("product:categorybrandrelation:list")
+	public R list(@RequestParam Map<String, Object> params)
+	{
+		PageUtils page = categoryBrandRelationService.queryPage(params);
+		return R.ok().put("page", page);
+	}
 
 
-    /**
-     * 列表
-     */
-    @RequestMapping("/list")
-  //  @RequiresPermissions("product:categorybrandrelation:list")
-    public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = categoryBrandRelationService.queryPage(params);
-        return R.ok().put("page", page);
-    }
-
-
-    /**
-     * 信息
-     */
-    @RequestMapping("/info/{id}")
-    //@RequiresPermissions("product:categorybrandrelation:info")
-    public R info(@PathVariable("id") Long id){
+	/**
+	 * 信息
+	 */
+	@RequestMapping("/info/{id}")
+	//@RequiresPermissions("product:categorybrandrelation:info")
+	public R info(@PathVariable("id") Long id)
+	{
 		CategoryBrandRelationEntity categoryBrandRelation = categoryBrandRelationService.getById(id);
-
-        return R.ok().put("categoryBrandRelation", categoryBrandRelation);
-    }
-
+		return R.ok().put("categoryBrandRelation", categoryBrandRelation);
+	}
 
 
-
-    /**
-     * 保存
-     */
-    @RequestMapping("/save")
-//    @RequiresPermissions("product:categorybrandrelation:save")
-    public R save(@RequestBody CategoryBrandRelationEntity categoryBrandRelation){
-
-
+	/**
+	 * 保存
+	 */
+	@RequestMapping("/save")
+	//    @RequiresPermissions("product:categorybrandrelation:save")
+	public R save(@RequestBody CategoryBrandRelationEntity categoryBrandRelation)
+	{
 		categoryBrandRelationService.saveDetail(categoryBrandRelation);
+		return R.ok();
+	}
 
-        return R.ok();
-    }
-
-    /**
-     * 修改
-     */
-    @RequestMapping("/update")
-  //  @RequiresPermissions("product:categorybrandrelation:update")
-    public R update(@RequestBody CategoryBrandRelationEntity categoryBrandRelation){
+	/**
+	 * 修改
+	 */
+	@RequestMapping("/update")
+	//  @RequiresPermissions("product:categorybrandrelation:update")
+	public R update(@RequestBody CategoryBrandRelationEntity categoryBrandRelation)
+	{
 		categoryBrandRelationService.updateById(categoryBrandRelation);
+		return R.ok();
+	}
 
-        return R.ok();
-    }
-
-    /**
-     * 删除
-     */
-    @RequestMapping("/delete")
-    //@RequiresPermissions("product:categorybrandrelation:delete")
-    public R delete(@RequestBody Long[] ids){
+	/**
+	 * 删除
+	 */
+	@RequestMapping("/delete")
+	//@RequiresPermissions("product:categorybrandrelation:delete")
+	public R delete(@RequestBody Long[] ids)
+	{
 		categoryBrandRelationService.removeByIds(Arrays.asList(ids));
-
-        return R.ok();
-    }
+		return R.ok();
+	}
 
 }

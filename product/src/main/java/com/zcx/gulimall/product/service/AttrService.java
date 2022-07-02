@@ -3,6 +3,7 @@ package com.zcx.gulimall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zcx.common.utils.PageUtils;
 import com.zcx.gulimall.product.entity.AttrEntity;
+import com.zcx.gulimall.product.entity.AttrGroupEntity;
 import com.zcx.gulimall.product.vo.AttrRespVo;
 import com.zcx.gulimall.product.vo.AttrVo;
 
@@ -15,14 +16,17 @@ import java.util.Map;
  * @email sunlightcs@gmail.com
  * @date 2022-06-20 18:00:34
  */
-public interface AttrService extends IService<AttrEntity> {
+public interface AttrService extends IService<AttrEntity>
+{
 
-    void saveAttr(AttrVo attr);
+AttrGroupEntity getGroupByAttr(Long attrId);
 
-    PageUtils queryBasePage(Map<String, Object> params, Long catelogId, String type);
+void saveAttr(AttrVo attr);
 
-    AttrRespVo attrInfo(Long attrId);
+PageUtils queryBasePage(Map<String, Object> params, Long catelogId, String type);
 
-    void updateAttr(AttrVo attr);
+AttrRespVo attrInfo(Long attrId);
+
+void updateAttr(AttrVo attr);
 }
 

@@ -1,13 +1,12 @@
 package com.zcx.gulimall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.zcx.gulimall.product.entity.BrandEntity;
-import com.zcx.gulimall.product.entity.CategoryEntity;
 import com.zcx.gulimall.product.service.BrandService;
 import com.zcx.gulimall.product.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -22,47 +21,62 @@ import com.zcx.gulimall.product.service.CategoryBrandRelationService;
 
 
 @Service("categoryBrandRelationService")
-public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandRelationDao, CategoryBrandRelationEntity> implements CategoryBrandRelationService {
-    @Override
-    public void updateCategory(Long catId, String name) {
-        this.baseMapper.updateCategory(catId,name);
-    }
-
-    @Autowired
-    private BrandService brandService;
-    @Autowired
-    private CategoryService categoryService;
-
-    @Override
-    public void updateBrand(Long brandId, String name) {
-        LambdaQueryWrapper<CategoryBrandRelationEntity> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(CategoryBrandRelationEntity::getBrandId, brandId);
-        CategoryBrandRelationEntity categoryBrandRelationEntity = new CategoryBrandRelationEntity();
-        categoryBrandRelationEntity.setBrandName(name);
-        update(categoryBrandRelationEntity, wrapper);
-    }
-
-    @Override
-    public void saveDetail(CategoryBrandRelationEntity categoryBrandRelation) {
-
-        String brandName = brandService.getById(categoryBrandRelation.getBrandId()).getName();
-        String categoryName = categoryService.getById(categoryBrandRelation.getCatelogId()).getName();
-
-        categoryBrandRelation.setBrandName(brandName);
-        categoryBrandRelation.setCatelogName(categoryName);
-        save(categoryBrandRelation);
+public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandRelationDao, CategoryBrandRelationEntity> implements CategoryBrandRelationService
+{
 
 
-    }
+	@Autowired
+	private BrandService brandService;
+	@Autowired
+	private CategoryService categoryService;
 
-    @Override
-    public PageUtils queryPage(Map<String, Object> params) {
-        IPage<CategoryBrandRelationEntity> page = this.page(
-                new Query<CategoryBrandRelationEntity>().getPage(params),
-                new QueryWrapper<CategoryBrandRelationEntity>()
-        );
+	@Override
+	public void updateBrand(Long brandId, String name)
+	{
+		LambdaQueryWrapper<CategoryBrandRelationEntity> wrapper = new LambdaQueryWrapper<>();
+		wrapper.eq(CategoryBrandRelationEntity::getBrandId, brandId);
+		CategoryBrandRelationEntity categoryBrandRelationEntity = new CategoryBrandRelationEntity();
+		categoryBrandRelationEntity.setBrandName(name);
+		update(categoryBrandRelationEntity, wrapper);
+	}
 
-        return new PageUtils(page);
-    }
+	@Override
+	public void updateCategory(Long catId, String name)
+	{
+		this.baseMapper.updateCategory(catId, name);
+	}
+
+	@Override
+	public List<CategoryBrandRelationEntity> getBrandByCatId(Long catId)
+	{
+
+		LambdaQueryWrapper<CategoryBrandRelationEntity> wrapper = new LambdaQueryWrapper<>();
+		wrapper.eq(CategoryBrandRelationEntity::getCatelogId, catId);
+		return list(wrapper);
+	}
+
+	@Override
+	public void saveDetail(CategoryBrandRelationEntity categoryBrandRelation)
+	{
+
+		String brandName = brandService.getById(categoryBrandRelation.getBrandId()).getName();
+		String categoryName = categoryService.getById(categoryBrandRelation.getCatelogId()).getName();
+
+		categoryBrandRelation.setBrandName(brandName);
+		categoryBrandRelation.setCatelogName(categoryName);
+		save(categoryBrandRelation);
+
+
+	}
+
+	@Override
+	public PageUtils queryPage(Map<String, Object> params)
+	{
+		IPage<CategoryBrandRelationEntity> page = this.page(
+				new Query<CategoryBrandRelationEntity>().getPage(params),
+				new QueryWrapper<CategoryBrandRelationEntity>()
+		);
+		return new PageUtils(page);
+	}
 
 }

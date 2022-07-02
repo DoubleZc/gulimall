@@ -11,12 +11,21 @@ spring:
             #          url为路由地址 baidu为携带参数，若携带参数有则路由
             - Query=url,baidu
 
-        - id: moduls
+        - id: product
           uri: lb://gulimall-product
           predicates:
               - Path=/api/product/**
           filters:
               - RewritePath=/api(?<segment>/?.*),$\{segment}
+
+        - id: member
+          uri: lb://gulimall-member
+          predicates:
+            - Path=/api/member/**
+          filters:
+            - RewritePath=/api(?<segment>/?.*),$\{segment}
+
+
 
         - id: oss
           uri: lb://thired

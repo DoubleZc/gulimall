@@ -1,11 +1,19 @@
 package com.zcx.gulimall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zcx.common.constant.ProductConstant;
+import com.zcx.common.utils.PageUtils;
+import com.zcx.common.utils.Query;
+import com.zcx.gulimall.product.dao.AttrDao;
 import com.zcx.gulimall.product.entity.AttrAttrgroupRelationEntity;
+import com.zcx.gulimall.product.entity.AttrEntity;
 import com.zcx.gulimall.product.entity.AttrGroupEntity;
 import com.zcx.gulimall.product.entity.CategoryEntity;
 import com.zcx.gulimall.product.service.AttrAttrgroupRelationService;
 import com.zcx.gulimall.product.service.AttrGroupService;
+import com.zcx.gulimall.product.service.AttrService;
 import com.zcx.gulimall.product.service.CategoryService;
 import com.zcx.gulimall.product.vo.AttrRespVo;
 import com.zcx.gulimall.product.vo.AttrVo;
@@ -13,21 +21,12 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zcx.common.utils.PageUtils;
-import com.zcx.common.utils.Query;
-
-import com.zcx.gulimall.product.dao.AttrDao;
-import com.zcx.gulimall.product.entity.AttrEntity;
-import com.zcx.gulimall.product.service.AttrService;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("attrService")
@@ -58,7 +57,7 @@ public AttrRespVo attrInfo(Long attrId)
 	attrRespVo.setCatelogName(byId.getName());
 	attrRespVo.setCatelogPath(path);
 
-	if (attrEntity.getAttrType() == 1) {
+	if (ProductConstant.AttrType.BASE.getCode().equals(attrEntity.getAttrType())) {
 		//设置组id信息
 		AttrGroupEntity groupByAttr = getGroupByAttr(attrId);
 		if (groupByAttr != null) {
@@ -77,7 +76,7 @@ public void updateAttr(AttrVo attr)
 	//      更新基本数据
 	updateById(attrEntity);
 
-	if (attr.getAttrType() == 1) {
+	if (ProductConstant.AttrType.BASE.getCode().equals(attr.getAttrType())) {
 		//        更新中间表
 		LambdaQueryWrapper<AttrAttrgroupRelationEntity> wrapper = new LambdaQueryWrapper<AttrAttrgroupRelationEntity>().eq(AttrAttrgroupRelationEntity::getAttrId, attr.getAttrId());
 		AttrAttrgroupRelationEntity attrAttrgroupRelationEntity = new AttrAttrgroupRelationEntity();
@@ -98,12 +97,10 @@ public PageUtils queryBasePage(Map<String, Object> params, Long catelogId, Strin
 {
 	String key = (String) params.get("key");
 	LambdaQueryWrapper<AttrEntity> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-	lambdaQueryWrapper.eq(AttrEntity::getAttrType, "base".equals(type) ? 1 : 0);
+	lambdaQueryWrapper.eq(AttrEntity::getAttrType, ProductConstant.AttrType.BASE.getMsg().equals(type) ? 1 : 0);
 	lambdaQueryWrapper.eq(catelogId != 0, AttrEntity::getCatelogId, catelogId);
 	lambdaQueryWrapper.and(Strings.isNotEmpty(key), wrapper ->
-			{
-				wrapper.like(AttrEntity::getAttrName, key).or().like(AttrEntity::getAttrId, key);
-			}
+			wrapper.like(AttrEntity::getAttrName, key).or().like(AttrEntity::getAttrId, key)
 	);
 	IPage<AttrEntity> page = page(new Query<AttrEntity>().getPage(params), lambdaQueryWrapper);
 	List<AttrEntity> records = page.getRecords();
@@ -117,9 +114,7 @@ public PageUtils queryBasePage(Map<String, Object> params, Long catelogId, Strin
 		CategoryEntity categoryEntity = categoryService.getById(attrEntity.getCatelogId());
 		String categoryEntityName = categoryEntity.getName();
 		attrRespVo.setCatelogName(categoryEntityName);
-
-
-		if (type.equals("base")) {
+		if (ProductConstant.AttrType.BASE.getMsg().equals(type)) {
 			AttrGroupEntity groupByAttr = getGroupByAttr(attrEntity.getAttrId());
 			if (groupByAttr != null) {
 				attrRespVo.setGroupName(groupByAttr.getAttrGroupName());
@@ -128,7 +123,6 @@ public PageUtils queryBasePage(Map<String, Object> params, Long catelogId, Strin
 
 		return attrRespVo;
 	}).collect(Collectors.toList());
-
 	PageUtils pageUtils = new PageUtils(page);
 	pageUtils.setList(list);
 	return pageUtils;
@@ -138,9 +132,8 @@ public PageUtils queryBasePage(Map<String, Object> params, Long catelogId, Strin
 
 /***
  * 用成员Id类拿组类
- * @param attrId
- * @return
  */
+@Override
 public AttrGroupEntity getGroupByAttr(Long attrId)
 {
 	AttrAttrgroupRelationEntity one = relationService.getOne(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>().eq(AttrAttrgroupRelationEntity::getAttrId, attrId));
@@ -159,7 +152,7 @@ public AttrGroupEntity getGroupByAttr(Long attrId)
 public void saveAttr(AttrVo attr)
 {
 	save(attr);
-	if (attr.getAttrType() == 1) {
+	if (ProductConstant.AttrType.BASE.getCode().equals(attr.getAttrType())) {
 		AttrAttrgroupRelationEntity attrAttrgroupRelationEntity = new AttrAttrgroupRelationEntity();
 		attrAttrgroupRelationEntity.setAttrGroupId(attr.getAttrGroupId());
 		attrAttrgroupRelationEntity.setAttrId(attr.getAttrId());
