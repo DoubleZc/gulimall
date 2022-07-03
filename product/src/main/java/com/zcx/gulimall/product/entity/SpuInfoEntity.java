@@ -1,23 +1,27 @@
 package com.zcx.gulimall.product.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.math.BigDecimal;
 import java.io.Serializable;
 import java.util.Date;
+
 import lombok.Data;
 
 /**
  * spu信息
- * 
+ *
  * @author zcxaa
  * @email sunlightcs@gmail.com
  * @date 2022-06-20 18:00:35
  */
 @Data
 @TableName("pms_spu_info")
-public class SpuInfoEntity implements Serializable {
+public class SpuInfoEntity implements Serializable
+{
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -42,7 +46,7 @@ public class SpuInfoEntity implements Serializable {
 	 */
 	private Long brandId;
 	/**
-	 * 
+	 *
 	 */
 	private BigDecimal weight;
 	/**
@@ -50,12 +54,14 @@ public class SpuInfoEntity implements Serializable {
 	 */
 	private Integer publishStatus;
 	/**
-	 * 
+	 *
 	 */
+	@TableField(fill = FieldFill.INSERT)
 	private Date createTime;
 	/**
-	 * 
+	 *
 	 */
+	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private Date updateTime;
 
 }

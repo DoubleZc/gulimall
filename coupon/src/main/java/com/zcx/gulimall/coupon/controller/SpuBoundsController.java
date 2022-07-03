@@ -38,7 +38,6 @@ public class SpuBoundsController {
   //  @RequiresPermissions("coupon:spubounds:list")
     public R list(@RequestParam Map<String, Object> params){
         PageUtils page = spuBoundsService.queryPage(params);
-
         return R.ok().put("page", page);
     }
 
@@ -61,7 +60,6 @@ public class SpuBoundsController {
 //    @RequiresPermissions("coupon:spubounds:save")
     public R save(@RequestBody SpuBoundsEntity spuBounds){
 		spuBoundsService.save(spuBounds);
-
         return R.ok();
     }
 

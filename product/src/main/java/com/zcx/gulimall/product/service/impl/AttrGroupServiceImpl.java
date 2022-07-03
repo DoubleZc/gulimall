@@ -74,16 +74,14 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 	public List<AttrGroupVo> getGroupDetail(Long catelogId)
 	{
 		List<AttrGroupEntity> list = list(new LambdaQueryWrapper<AttrGroupEntity>().eq(AttrGroupEntity::getCatelogId, catelogId));
-
-
-		List<AttrGroupVo> collect = list.stream().map(item -> {
+		return list.stream().map(item -> {
 			AttrGroupVo attrGroupVo = new AttrGroupVo();
 			BeanUtils.copyProperties(item, attrGroupVo);
 			List<AttrEntity> attrByGroup = getAttrByGroup(item.getAttrGroupId());
 			attrGroupVo.setAttrs(attrByGroup);
 			return attrGroupVo;
 		}).collect(Collectors.toList());
-		return collect;
+
 
 	}
 
