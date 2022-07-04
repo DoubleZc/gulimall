@@ -7,9 +7,11 @@ import com.zcx.gulimall.coupon.entity.SkuLadderEntity;
 import com.zcx.gulimall.coupon.service.MemberPriceService;
 import com.zcx.gulimall.coupon.service.SkuLadderService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.ExtendedBeanInfoFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -52,25 +54,27 @@ public class SkuFullReductionServiceImpl extends ServiceImpl<SkuFullReductionDao
 	{
 		SkuLadderEntity skuLadderEntity = new SkuLadderEntity();
 		BeanUtils.copyProperties(skuReductionTo,skuLadderEntity);
+		if(skuLadderEntity.getFullCount()>0)
 		skuLadderService.save(skuLadderEntity);
 
 
 		SkuFullReductionEntity skuFullReductionEntity = new SkuFullReductionEntity();
 		BeanUtils.copyProperties(skuReductionTo,skuFullReductionEntity);
+		if (skuFullReductionEntity.getReducePrice().compareTo(BigDecimal.valueOf(0))>0)
 		save(skuFullReductionEntity);
 		//sku优惠满减信息gulimall_sms  /sku_Ladder/full_reduction/member_price
 		List<MemberPrice> memberPrices = skuReductionTo.getMemberPrice();
-		System.out.println(memberPrices);
-		List<MemberPriceEntity> collect = memberPrices.stream().map(item -> {
-			MemberPriceEntity memberPriceEntity = new MemberPriceEntity();
-			memberPriceEntity.setMemberLevelId(item.getId());
-			memberPriceEntity.setMemberLevelName(item.getName());
-			memberPriceEntity.setMemberPrice(item.getPrice());
-			memberPriceEntity.setSkuId(skuReductionTo.getSkuId());
-			return memberPriceEntity;
-		}).collect(Collectors.toList());
-		memberPriceService.saveBatch(collect);
-
+		if (!memberPrices.isEmpty()) {
+			List<MemberPriceEntity> collect = memberPrices.stream().map(item -> {
+				MemberPriceEntity memberPriceEntity = new MemberPriceEntity();
+				memberPriceEntity.setMemberLevelId(item.getId());
+				memberPriceEntity.setMemberLevelName(item.getName());
+				memberPriceEntity.setMemberPrice(item.getPrice());
+				memberPriceEntity.setSkuId(skuReductionTo.getSkuId());
+				return memberPriceEntity;
+			}).collect(Collectors.toList());
+			memberPriceService.saveBatch(collect);
+		}
 	}
 
 }

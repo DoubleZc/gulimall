@@ -6,6 +6,9 @@ spring:
     password: root
   application:
     name: gulimall-product
+  jackson:
+    date-format: yyyy/MM/dd HH:mm:ss
+    time-zone: GMT+8
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/*/*.xml
@@ -20,4 +23,3 @@ mybatis-plus:
 
 server:
   port: 500
-
