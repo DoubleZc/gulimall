@@ -130,36 +130,36 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
 
 		List<FinishDetailVo> items = vo.getItems();
 		Long id = vo.getId();
-		boolean flag=true;
-		List<PurchaseDetailEntity> entities=new ArrayList<>();
+		boolean flag = true;
+		List<PurchaseDetailEntity> entities = new ArrayList<>();
 		for (FinishDetailVo item : items) {
 			PurchaseDetailEntity purchaseDetailEntity = new PurchaseDetailEntity();
-			if(item.getStatus().equals(WareConstant.PurchaseDetail.ERROR.getCode())){
+			if (item.getStatus().equals(WareConstant.PurchaseDetail.ERROR.getCode())) {
 				purchaseDetailEntity.setStatus(WareConstant.PurchaseDetail.ERROR.getCode());
-				flag=false;
-			}else
-			{
+				flag = false;
+			} else {
 				purchaseDetailEntity.setStatus(WareConstant.PurchaseDetail.FINISH.getCode());
+				purchaseDetailEntity.setId(item.getItemId());
+				entities.add(purchaseDetailEntity);
+
+				//添加入库信息ware_sku
+
+
 			}
-			purchaseDetailEntity.setId(item.getItemId());
-			entities.add(purchaseDetailEntity);
+			purchaseDetailService.updateBatchById(entities);
+
+			PurchaseEntity purchaseEntity = new PurchaseEntity();
+			purchaseEntity.setId(id);
+			if (flag) {
+				purchaseEntity.setStatus(WareConstant.PurchaseStatus.FINISH.getCode());
+				updateById(purchaseEntity);
+			} else {
+				purchaseEntity.setStatus(WareConstant.PurchaseStatus.ERROR.getCode());
+				updateById(purchaseEntity);
+			}
+			return R.ok();
+
+
 		}
-		purchaseDetailService.updateBatchById(entities);
-
-		PurchaseEntity purchaseEntity = new PurchaseEntity();
-		purchaseEntity.setId(id);
-		if (flag){
-			purchaseEntity.setStatus(WareConstant.PurchaseStatus.FINISH.getCode());
-			updateById(purchaseEntity);
-		}else{
-			purchaseEntity.setStatus(WareConstant.PurchaseStatus.ERROR.getCode());
-			updateById(purchaseEntity);
-		}
-
-
-		return R.ok();
-
 
 	}
-
-}
