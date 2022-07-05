@@ -8,6 +8,7 @@ import com.zcx.gulimall.product.entity.*;
 import com.zcx.gulimall.product.feign.CouponFeignService;
 import com.zcx.gulimall.product.service.*;
 import com.zcx.gulimall.product.vo.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import com.zcx.gulimall.product.dao.SpuInfoDao;
 import org.springframework.transaction.annotation.Transactional;
 
 
+@Slf4j
 @Service("spuInfoService")
 public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> implements SpuInfoService
 {
@@ -175,9 +177,12 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
 
 
-		wrapper.eq(Objects.nonNull(brandId),SpuInfoEntity::getBrandId,Long.valueOf(brandId));
-		wrapper.eq(Objects.nonNull(catelogId),SpuInfoEntity::getCatalogId,Long.valueOf(catelogId));
-		wrapper.eq(Strings.isNotEmpty(status),SpuInfoEntity::getPublishStatus,Integer.valueOf(status));
+		if (Strings.isNotEmpty(brandId))
+		wrapper.eq(SpuInfoEntity::getBrandId,Long.valueOf(brandId));
+		if (Strings.isNotEmpty(catelogId))
+		wrapper.eq(SpuInfoEntity::getCatalogId,Long.valueOf(catelogId));
+		if (Strings.isNotEmpty(status))
+		wrapper.eq(SpuInfoEntity::getPublishStatus,Integer.valueOf(status));
 		wrapper.and(Strings.isNotEmpty(key),w->{
 			w.like(SpuInfoEntity::getSpuName,key).or().like(SpuInfoEntity::getSpuDescription,key);
 		});

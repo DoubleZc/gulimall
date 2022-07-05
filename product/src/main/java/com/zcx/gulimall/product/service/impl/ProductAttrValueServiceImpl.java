@@ -1,5 +1,6 @@
 package com.zcx.gulimall.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zcx.gulimall.product.entity.AttrEntity;
 import com.zcx.gulimall.product.service.AttrService;
 import com.zcx.gulimall.product.vo.BaseAttrs;
@@ -20,6 +21,7 @@ import com.zcx.common.utils.Query;
 import com.zcx.gulimall.product.dao.ProductAttrValueDao;
 import com.zcx.gulimall.product.entity.ProductAttrValueEntity;
 import com.zcx.gulimall.product.service.ProductAttrValueService;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("productAttrValueService")
@@ -54,6 +56,31 @@ public class ProductAttrValueServiceImpl extends ServiceImpl<ProductAttrValueDao
 		saveBatch(collect);
 	}
 
+	@Override
+	public List<ProductAttrValueEntity> baseAttrListForSpu(Long spuId)
+	{
+
+		List<ProductAttrValueEntity> list = list(new LambdaQueryWrapper<ProductAttrValueEntity>().eq(ProductAttrValueEntity::getSpuId, spuId));
+		return list;
+
+
+	}
+
+	@Transactional
+	@Override
+	public void updateSpu(Long spuId,List<ProductAttrValueEntity> productAttrValueEntity)
+	{
+		LambdaQueryWrapper<ProductAttrValueEntity> wrapper = new LambdaQueryWrapper<>();
+		wrapper.eq(ProductAttrValueEntity::getSpuId,spuId);
+		remove(wrapper);
+
+		productAttrValueEntity.forEach(i->{
+			i.setSpuId(spuId);
+		});
+
+		saveBatch(productAttrValueEntity);
+
+	}
 
 
 }

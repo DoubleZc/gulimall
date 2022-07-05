@@ -5,6 +5,7 @@ import com.zcx.common.constant.WareConstant;
 import com.zcx.common.utils.R;
 import com.zcx.gulimall.ware.entity.PurchaseDetailEntity;
 import com.zcx.gulimall.ware.service.PurchaseDetailService;
+import com.zcx.gulimall.ware.service.WareSkuService;
 import com.zcx.gulimall.ware.vo.FinishDetailVo;
 import com.zcx.gulimall.ware.vo.FinishVo;
 import com.zcx.gulimall.ware.vo.MergeVo;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,6 +36,8 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
 
 	@Autowired
 	PurchaseDetailService purchaseDetailService;
+	@Autowired
+	WareSkuService wareSkuService;
 
 
 	@Override
@@ -124,6 +128,7 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
 		}
 	}
 
+	@Transactional
 	@Override
 	public R finish(FinishVo vo)
 	{
@@ -132,34 +137,40 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
 		Long id = vo.getId();
 		boolean flag = true;
 		List<PurchaseDetailEntity> entities = new ArrayList<>();
+		List<Long> ids=new ArrayList<>();
 		for (FinishDetailVo item : items) {
 			PurchaseDetailEntity purchaseDetailEntity = new PurchaseDetailEntity();
 			if (item.getStatus().equals(WareConstant.PurchaseDetail.ERROR.getCode())) {
+
 				purchaseDetailEntity.setStatus(WareConstant.PurchaseDetail.ERROR.getCode());
 				flag = false;
 			} else {
 				purchaseDetailEntity.setStatus(WareConstant.PurchaseDetail.FINISH.getCode());
-				purchaseDetailEntity.setId(item.getItemId());
-				entities.add(purchaseDetailEntity);
-
 				//添加入库信息ware_sku
-
-
+				ids.add(item.getItemId());
 			}
-			purchaseDetailService.updateBatchById(entities);
-
-			PurchaseEntity purchaseEntity = new PurchaseEntity();
-			purchaseEntity.setId(id);
-			if (flag) {
-				purchaseEntity.setStatus(WareConstant.PurchaseStatus.FINISH.getCode());
-				updateById(purchaseEntity);
-			} else {
-				purchaseEntity.setStatus(WareConstant.PurchaseStatus.ERROR.getCode());
-				updateById(purchaseEntity);
-			}
-			return R.ok();
-
-
+			purchaseDetailEntity.setId(item.getItemId());
+			entities.add(purchaseDetailEntity);
 		}
 
+		List<PurchaseDetailEntity> purchaseEntities = purchaseDetailService.listByIds(ids);
+		wareSkuService.saveWareSku(purchaseEntities);
+
+		purchaseDetailService.updateBatchById(entities);
+
+		PurchaseEntity purchaseEntity = new PurchaseEntity();
+		purchaseEntity.setId(id);
+		if (flag) {
+			purchaseEntity.setStatus(WareConstant.PurchaseStatus.FINISH.getCode());
+			updateById(purchaseEntity);
+		} else {
+			purchaseEntity.setStatus(WareConstant.PurchaseStatus.ERROR.getCode());
+			updateById(purchaseEntity);
+		}
+		return R.ok();
+
 	}
+
+
+
+}

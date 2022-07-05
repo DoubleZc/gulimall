@@ -2,8 +2,10 @@ package com.zcx.gulimall.ware.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zcx.common.utils.PageUtils;
+import com.zcx.gulimall.ware.entity.PurchaseDetailEntity;
 import com.zcx.gulimall.ware.entity.WareSkuEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,5 +20,7 @@ public interface WareSkuService extends IService<WareSkuEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
 	PageUtils queryPageByCondition(Map<String, Object> params);
+
+	void saveWareSku(List<PurchaseDetailEntity> entity);
 }
 

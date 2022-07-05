@@ -6,11 +6,7 @@ import java.util.Map;
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.zcx.gulimall.product.vo.SpuSaveVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.zcx.gulimall.product.entity.SkuInfoEntity;
 import com.zcx.gulimall.product.service.SkuInfoService;
@@ -86,5 +82,17 @@ public class SkuInfoController {
 
         return R.ok();
     }
+
+    /**
+     * id取名字
+     */
+    @RequestMapping("/one")
+    //@RequiresPermissions("product:skuinfo:delete")
+    public R getById(@RequestBody Long id){
+        SkuInfoEntity entity = skuInfoService.getById(id);
+        return R.ok().put("name",entity.getSkuName());
+    }
+
+
 
 }
