@@ -8,7 +8,6 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>gulimall</name>
 	<description>谷粒商城聚合服务</description>
-
 	<packaging>pom</packaging>
 
 
@@ -23,5 +22,6 @@
 		<module>common</module>
 		<module>gateway</module>
 		<module>thired</module>
+		<module>search</module>
 	</modules>
 </project>

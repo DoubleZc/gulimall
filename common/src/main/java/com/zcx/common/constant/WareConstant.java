@@ -61,5 +61,26 @@ public class WareConstant
 		}
 	}
 
+	public enum Stock
+	{
+		HAVE(true),
+		NOT_HAVE(false);
+
+		private boolean isHave;
+
+		 Stock (boolean isHave)
+		{
+			this.isHave=isHave;
+
+		}
+
+		public boolean isHave()
+		{
+			return isHave;
+		}
+	}
+
+
+
 
 }

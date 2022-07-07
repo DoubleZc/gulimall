@@ -5,6 +5,7 @@ import com.zcx.common.utils.PageUtils;
 import com.zcx.gulimall.product.entity.SkuInfoEntity;
 import com.zcx.gulimall.product.vo.SpuSaveVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,5 +21,7 @@ public interface SkuInfoService extends IService<SkuInfoEntity> {
 
 
 	PageUtils queryPageByCondition(Map<String, Object> params);
+
+	List<SkuInfoEntity> getBySpuId(Long spuId);
 }
 

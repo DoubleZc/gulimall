@@ -1,7 +1,9 @@
 package com.zcx.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.zcx.gulimall.product.vo.SpuSaveVo;
@@ -35,7 +37,6 @@ public class SkuInfoController {
   //  @RequiresPermissions("product:skuinfo:list")
     public R list(@RequestParam Map<String, Object> params){
         PageUtils page = skuInfoService.queryPageByCondition(params);
-
         return R.ok().put("page", page);
     }
 

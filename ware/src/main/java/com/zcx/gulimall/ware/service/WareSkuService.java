@@ -22,5 +22,7 @@ public interface WareSkuService extends IService<WareSkuEntity> {
 	PageUtils queryPageByCondition(Map<String, Object> params);
 
 	void saveWareSku(List<PurchaseDetailEntity> entity);
+
+	WareSkuEntity getBySkuId(Long skuId);
 }
 

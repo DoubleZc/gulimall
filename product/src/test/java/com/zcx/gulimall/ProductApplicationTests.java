@@ -1,9 +1,14 @@
 package com.zcx.gulimall;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zcx.common.constant.WareConstant;
+import com.zcx.common.utils.R;
 import com.zcx.gulimall.product.ProductApplication;
+import com.zcx.gulimall.product.feign.WareFeignService;
 import com.zcx.gulimall.product.service.BrandService;
 import com.zcx.gulimall.product.service.CategoryService;
 import com.zcx.gulimall.product.vo.Images;
+import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,22 +25,19 @@ class ProductApplicationTests {
     private CategoryService categoryService;
 
 
+    @Autowired
+    WareFeignService wareFeignService;
+
     @Test
     void contextLoads() throws Exception
     {
-        Images a = new Images();
-        Images b = new Images();
-        a.setDefaultImg(1);
-        b.setDefaultImg(2);
+        R bySkuId = wareFeignService.getBySkuId(35L);
 
-        List<Images> c=new ArrayList<>();
-        c.add(a);
-        c.add(b);
 
-        List<Images> collect = c.stream().filter(item -> item.getDefaultImg() == 3).collect(Collectors.toList());
+        boolean data = (boolean)bySkuId.get("data");
 
-        System.out.println(collect.isEmpty());
-
+        System.out.println(WareConstant.Stock.NOT_HAVE);
+        System.out.println(data);
 
 
     }

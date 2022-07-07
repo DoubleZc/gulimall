@@ -1,11 +1,15 @@
 package com.zcx.gulimall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.zcx.common.constant.WareConstant;
 import com.zcx.common.to.MemberPrice;
 import com.zcx.common.to.SkuReductionTo;
 import com.zcx.common.to.SpuBoundTo;
+import com.zcx.common.to.es.SkuEsModel;
+import com.zcx.common.utils.R;
 import com.zcx.gulimall.product.entity.*;
 import com.zcx.gulimall.product.feign.CouponFeignService;
+import com.zcx.gulimall.product.feign.WareFeignService;
 import com.zcx.gulimall.product.service.*;
 import com.zcx.gulimall.product.vo.*;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -34,6 +39,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service("spuInfoService")
 public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> implements SpuInfoService
 {
+	@Autowired
+	CategoryService categoryService;
 
 	@Autowired
 	private SpuInfoDescService spuInfoDesc;
@@ -54,6 +61,12 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
 	@Autowired
 	CouponFeignService couponFeignService;
+
+	@Autowired
+	BrandService brandService;
+
+	@Autowired
+	WareFeignService wareFeignService;
 
 	@Override
 	public PageUtils queryPage(Map<String, Object> params)
@@ -156,8 +169,8 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 				).collect(Collectors.toList());
 				skuReductionTo.setMemberPrice(memberPrice);
 
-				if (skuReductionTo.getFullCount()>0||skuReductionTo.getReducePrice().compareTo(BigDecimal.valueOf(0))>0||!memberPrice.isEmpty())
-				couponFeignService.saveSkuReduction(skuReductionTo);
+				if (skuReductionTo.getFullCount() > 0 || skuReductionTo.getReducePrice().compareTo(BigDecimal.valueOf(0)) > 0 || !memberPrice.isEmpty())
+					couponFeignService.saveSkuReduction(skuReductionTo);
 
 
 			});
@@ -170,21 +183,20 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 	public PageUtils queryPageByCondition(Map<String, Object> params)
 	{
 		LambdaQueryWrapper<SpuInfoEntity> wrapper = new LambdaQueryWrapper<>();
-		String brandId = (String)params.get("brandId");
-		String catelogId =(String)params.get("catelogId");
-		String status = (String)params.get("status");
-		String key=(String)params.get("key");
-
+		String brandId = (String) params.get("brandId");
+		String catelogId = (String) params.get("catelogId");
+		String status = (String) params.get("status");
+		String key = (String) params.get("key");
 
 
 		if (Strings.isNotEmpty(brandId))
-		wrapper.eq(SpuInfoEntity::getBrandId,Long.valueOf(brandId));
+			wrapper.eq(SpuInfoEntity::getBrandId, Long.valueOf(brandId));
 		if (Strings.isNotEmpty(catelogId))
-		wrapper.eq(SpuInfoEntity::getCatalogId,Long.valueOf(catelogId));
+			wrapper.eq(SpuInfoEntity::getCatalogId, Long.valueOf(catelogId));
 		if (Strings.isNotEmpty(status))
-		wrapper.eq(SpuInfoEntity::getPublishStatus,Integer.valueOf(status));
-		wrapper.and(Strings.isNotEmpty(key),w->{
-			w.like(SpuInfoEntity::getSpuName,key).or().like(SpuInfoEntity::getSpuDescription,key);
+			wrapper.eq(SpuInfoEntity::getPublishStatus, Integer.valueOf(status));
+		wrapper.and(Strings.isNotEmpty(key), w -> {
+			w.like(SpuInfoEntity::getSpuName, key).or().like(SpuInfoEntity::getSpuDescription, key);
 		});
 
 
@@ -194,5 +206,40 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 		);
 
 		return new PageUtils(page);
+	}
+
+	@Override
+	public void spuUp(Long spuId)
+	{
+
+		List<SkuInfoEntity> skuInfoEntities = skuInfoService.getBySpuId(spuId);
+		List<SkuEsModel> upProduct = skuInfoEntities.stream().map(s -> {
+			SkuEsModel esModel = new SkuEsModel();
+			BeanUtils.copyProperties(s, esModel);
+			esModel.setSkuPrice(s.getPrice());
+			esModel.setSkuImg(s.getSkuDefaultImg());
+			R bySkuId = wareFeignService.getBySkuId(s.getSkuId());
+			boolean data = (boolean) bySkuId.get("data");
+			esModel.setHasStock(data);
+			esModel.setHotScore(0L);
+			BrandEntity entity = brandService.getById(s.getBrandId());
+			esModel.setBrandName(entity.getName());
+			esModel.setBrandImg(entity.getLogo());
+			CategoryEntity categoryEntity = categoryService.getById(s.getCatalogId());
+			esModel.setCatalogName(categoryEntity.getName());
+			List<ProductAttrValueEntity> list = productAttrValueS.baseAttrListForSpu(spuId);
+			List<SkuEsModel.Attr> collect = list.stream().map(l -> {
+				SkuEsModel.Attr attr = new SkuEsModel.Attr();
+				attr.setAttrId(l.getAttrId());
+				attr.setAttrName(l.getAttrName());
+				attr.setAttrValue(l.getAttrValue());
+				return attr;
+			}).collect(Collectors.toList());
+			esModel.setAttrs(collect);
+			return esModel;
+		}).collect(Collectors.toList());
+
+
+
 	}
 }

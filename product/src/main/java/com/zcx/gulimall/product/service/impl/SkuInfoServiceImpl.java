@@ -6,6 +6,8 @@ import com.zcx.gulimall.product.vo.SpuSaveVo;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -62,6 +64,13 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 		);
 
 		return new PageUtils(page);
+	}
+
+	@Override
+	public List<SkuInfoEntity> getBySpuId(Long spuId)
+	{
+
+		return list(new LambdaQueryWrapper<SkuInfoEntity>().eq(SkuInfoEntity::getSpuId, spuId));
 	}
 
 

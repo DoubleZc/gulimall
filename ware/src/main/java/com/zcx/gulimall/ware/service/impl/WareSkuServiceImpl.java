@@ -95,4 +95,14 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 
 	}
 
+	@Override
+	public WareSkuEntity getBySkuId(Long skuId)
+	{
+	return 	getOne(new LambdaQueryWrapper<WareSkuEntity>().eq(WareSkuEntity::getSkuId,skuId));
+
+
+
+
+	}
+
 }
