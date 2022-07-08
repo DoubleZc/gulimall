@@ -23,6 +23,6 @@ public interface WareSkuService extends IService<WareSkuEntity> {
 
 	void saveWareSku(List<PurchaseDetailEntity> entity);
 
-	WareSkuEntity getBySkuId(Long skuId);
+	Integer getBySkuId(Long skuId);
 }
 

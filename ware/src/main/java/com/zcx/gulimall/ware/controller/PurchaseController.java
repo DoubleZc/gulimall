@@ -7,6 +7,7 @@ import java.util.Map;
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.zcx.gulimall.ware.vo.FinishVo;
 import com.zcx.gulimall.ware.vo.MergeVo;
+import javafx.beans.property.adapter.JavaBeanBooleanProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -78,6 +79,8 @@ public class PurchaseController
 	@PostMapping("/received")
 	public R unreceiveList(@RequestBody List<Long> ids)
 	{
+
+
 		purchaseService.receive(ids);
 		return R.ok();
 	}

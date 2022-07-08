@@ -1,6 +1,7 @@
 package com.zcx.gulimall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.zcx.common.constant.ProductConstant;
 import com.zcx.common.constant.WareConstant;
 import com.zcx.common.to.MemberPrice;
 import com.zcx.common.to.SkuReductionTo;
@@ -9,6 +10,7 @@ import com.zcx.common.to.es.SkuEsModel;
 import com.zcx.common.utils.R;
 import com.zcx.gulimall.product.entity.*;
 import com.zcx.gulimall.product.feign.CouponFeignService;
+import com.zcx.gulimall.product.feign.EsFeignService;
 import com.zcx.gulimall.product.feign.WareFeignService;
 import com.zcx.gulimall.product.service.*;
 import com.zcx.gulimall.product.vo.*;
@@ -60,6 +62,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
 
 	@Autowired
+	AttrService attrService;
+
+	@Autowired
 	CouponFeignService couponFeignService;
 
 	@Autowired
@@ -67,6 +72,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
 	@Autowired
 	WareFeignService wareFeignService;
+
+	@Autowired
+	EsFeignService esFeignService;
 
 	@Override
 	public PageUtils queryPage(Map<String, Object> params)
@@ -212,33 +220,59 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 	public void spuUp(Long spuId)
 	{
 
+		List<ProductAttrValueEntity> list = productAttrValueS.baseAttrListForSpu(spuId);
+		List<Long> longs = list.stream().map(ProductAttrValueEntity::getAttrId)
+				.filter(i ->
+						attrService.getById(i).getSearchType() == 1
+				).collect(Collectors.toList());
+
+
+		List<SkuEsModel.Attr> collect = list.stream().filter(i ->
+				longs.contains(i.getAttrId())
+		).map(l -> {
+			SkuEsModel.Attr attr = new SkuEsModel.Attr();
+			attr.setAttrId(l.getAttrId());
+			attr.setAttrName(l.getAttrName());
+			attr.setAttrValue(l.getAttrValue());
+			return attr;
+		}).collect(Collectors.toList());
+
+
+
 		List<SkuInfoEntity> skuInfoEntities = skuInfoService.getBySpuId(spuId);
 		List<SkuEsModel> upProduct = skuInfoEntities.stream().map(s -> {
 			SkuEsModel esModel = new SkuEsModel();
 			BeanUtils.copyProperties(s, esModel);
 			esModel.setSkuPrice(s.getPrice());
 			esModel.setSkuImg(s.getSkuDefaultImg());
-			R bySkuId = wareFeignService.getBySkuId(s.getSkuId());
-			boolean data = (boolean) bySkuId.get("data");
-			esModel.setHasStock(data);
+			Integer data = null;
+			try {
+				//远程调用查看是否有库存
+				R bySkuId = wareFeignService.getBySkuId(s.getSkuId());
+				data = (Integer) bySkuId.get("data");
+			} catch (Exception e) {
+				log.error("远程调用wareFeignService失败：{}", e.getMessage(), e);
+			}
+			esModel.setHasStock(data == null || data > 0);
 			esModel.setHotScore(0L);
+
+			//品牌数据
 			BrandEntity entity = brandService.getById(s.getBrandId());
 			esModel.setBrandName(entity.getName());
 			esModel.setBrandImg(entity.getLogo());
 			CategoryEntity categoryEntity = categoryService.getById(s.getCatalogId());
 			esModel.setCatalogName(categoryEntity.getName());
-			List<ProductAttrValueEntity> list = productAttrValueS.baseAttrListForSpu(spuId);
-			List<SkuEsModel.Attr> collect = list.stream().map(l -> {
-				SkuEsModel.Attr attr = new SkuEsModel.Attr();
-				attr.setAttrId(l.getAttrId());
-				attr.setAttrName(l.getAttrName());
-				attr.setAttrValue(l.getAttrValue());
-				return attr;
-			}).collect(Collectors.toList());
 			esModel.setAttrs(collect);
 			return esModel;
 		}).collect(Collectors.toList());
 
+		R r = esFeignService.productStatusUp(upProduct);
+		if (r.getCode() == 0) {
+			SpuInfoEntity spuInfoEntity = new SpuInfoEntity();
+			spuInfoEntity.setId(spuId);
+			spuInfoEntity.setPublishStatus(ProductConstant.UpStatus.SPU_UP.getStatus());
+			updateById(spuInfoEntity);
+		}
 
 
 	}

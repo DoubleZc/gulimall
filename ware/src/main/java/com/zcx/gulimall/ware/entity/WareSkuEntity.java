@@ -1,5 +1,6 @@
 package com.zcx.gulimall.ware.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -44,5 +45,9 @@ public class WareSkuEntity implements Serializable {
 	 * 锁定库存
 	 */
 	private Integer stockLocked;
+
+
+	@TableField(exist = false)
+	private Integer sumStock;
 
 }

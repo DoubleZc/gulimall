@@ -1,11 +1,11 @@
 package com.zcx.gulimall.ware.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.zcx.common.constant.WareConstant;
+import com.zcx.gulimall.ware.vo.FinishDetailVo;
+import com.zcx.gulimall.ware.vo.FinishVo;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -43,18 +43,17 @@ public class WareSkuController
 	}
 
 
+
+
+
 	/**
 	 * 通过skuid查看库存情况
 	 */
 	@GetMapping("/{skuId}")
 	public R getBySkuId(@PathVariable Long skuId)
 	{
-		WareSkuEntity entity = wareSkuService.getBySkuId(skuId);
-		if (Objects.nonNull(entity)) {
-			Integer stock = entity.getStock();
-			return R.ok().put("data", stock != null && stock > 0);
-		}
-		return R.ok().put("data",false);
+		Integer entity = wareSkuService.getBySkuId(skuId);
+		return R.ok().put("data",entity);
 	}
 
 

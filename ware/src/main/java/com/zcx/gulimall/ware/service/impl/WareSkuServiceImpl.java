@@ -9,10 +9,8 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -96,13 +94,15 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 	}
 
 	@Override
-	public WareSkuEntity getBySkuId(Long skuId)
+	public Integer getBySkuId(Long skuId)
 	{
-	return 	getOne(new LambdaQueryWrapper<WareSkuEntity>().eq(WareSkuEntity::getSkuId,skuId));
-
-
-
-
+		QueryWrapper<WareSkuEntity> wrapper=new QueryWrapper<>();
+		wrapper.eq("sku_id",skuId).select("sum(stock-stock_locked) as sumStock");
+		WareSkuEntity one = getOne(wrapper);
+		if (one!=null)
+		return one.getSumStock();
+		else
+			return  0;
 	}
 
 }
