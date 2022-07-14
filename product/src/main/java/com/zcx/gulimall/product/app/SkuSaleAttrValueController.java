@@ -1,10 +1,9 @@
-package com.zcx.gulimall.product.controller;
+package com.zcx.gulimall.product.app;
 
 import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
-import com.zcx.gulimall.product.vo.SpuSaveVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,75 +11,57 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zcx.gulimall.product.entity.SpuInfoEntity;
-import com.zcx.gulimall.product.service.SpuInfoService;
+import com.zcx.gulimall.product.entity.SkuSaleAttrValueEntity;
+import com.zcx.gulimall.product.service.SkuSaleAttrValueService;
 import com.zcx.common.utils.PageUtils;
 import com.zcx.common.utils.R;
 
 
 
 /**
- * spu信息
+ * sku销售属性&值
  *
  * @author zcxaa
  * @email sunlightcs@gmail.com
  * @date 2022-06-20 18:41:22
  */
 @RestController
-@RequestMapping("product/spuinfo")
-public class SpuInfoController {
+@RequestMapping("product/skusaleattrvalue")
+public class SkuSaleAttrValueController {
     @Autowired
-    private SpuInfoService spuInfoService;
+    private SkuSaleAttrValueService skuSaleAttrValueService;
 
     /**
      * 列表
      */
     @RequestMapping("/list")
-  //  @RequiresPermissions("product:spuinfo:list")
+  //  @RequiresPermissions("product:skusaleattrvalue:list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = spuInfoService.queryPageByCondition(params);
+        PageUtils page = skuSaleAttrValueService.queryPage(params);
 
         return R.ok().put("page", page);
     }
-
-
-    /***
-     *
-     * 商品上架
-     * /product/spuinfo/{spuId}/up
-     *
-     */
-
-    @RequestMapping("/{spuId}/up")
-    public R spuUp(@PathVariable Long spuId)
-    {
-
-        spuInfoService.spuUp(spuId);
-        return R.ok();
-
-    }
-
-
 
 
     /**
      * 信息
      */
     @RequestMapping("/info/{id}")
-    //@RequiresPermissions("product:spuinfo:info")
+    //@RequiresPermissions("product:skusaleattrvalue:info")
     public R info(@PathVariable("id") Long id){
-		SpuInfoEntity spuInfo = spuInfoService.getById(id);
+		SkuSaleAttrValueEntity skuSaleAttrValue = skuSaleAttrValueService.getById(id);
 
-        return R.ok().put("spuInfo", spuInfo);
+        return R.ok().put("skuSaleAttrValue", skuSaleAttrValue);
     }
 
     /**
      * 保存
      */
     @RequestMapping("/save")
-    //    @RequiresPermissions("product:skuinfo:save")
-    public R save(@RequestBody SpuSaveVo spuInfo){
-        spuInfoService.saveSpuInfo(spuInfo);
+//    @RequiresPermissions("product:skusaleattrvalue:save")
+    public R save(@RequestBody SkuSaleAttrValueEntity skuSaleAttrValue){
+		skuSaleAttrValueService.save(skuSaleAttrValue);
+
         return R.ok();
     }
 
@@ -88,9 +69,9 @@ public class SpuInfoController {
      * 修改
      */
     @RequestMapping("/update")
-  //  @RequiresPermissions("product:spuinfo:update")
-    public R update(@RequestBody SpuInfoEntity spuInfo){
-		spuInfoService.updateById(spuInfo);
+  //  @RequiresPermissions("product:skusaleattrvalue:update")
+    public R update(@RequestBody SkuSaleAttrValueEntity skuSaleAttrValue){
+		skuSaleAttrValueService.updateById(skuSaleAttrValue);
 
         return R.ok();
     }
@@ -99,9 +80,9 @@ public class SpuInfoController {
      * 删除
      */
     @RequestMapping("/delete")
-    //@RequiresPermissions("product:spuinfo:delete")
+    //@RequiresPermissions("product:skusaleattrvalue:delete")
     public R delete(@RequestBody Long[] ids){
-		spuInfoService.removeByIds(Arrays.asList(ids));
+		skuSaleAttrValueService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
     }

@@ -9,6 +9,22 @@ spring:
   jackson:
     date-format: yyyy/MM/dd HH:mm:ss
     time-zone: GMT+8
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+  redis:
+    host: 192.168.182.128
+    port: 6379
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+#指定前缀
+#      key-prefix: CACHE_
+
+      cache-null-values: true
+
+
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/*/*.xml
@@ -17,9 +33,14 @@ mybatis-plus:
       id-type: auto
       logic-delete-value: 0
       logic-not-delete-value: 1
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 server:
   port: 500
+logging:
+  level:
+    com.zcx.gulimall: error
+
+
+
+

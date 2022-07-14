@@ -14,7 +14,7 @@ spring:
         - id: product
           uri: lb://gulimall-product
           predicates:
-              - Path=/api/product/**
+              - Path=/api/product/**,/hello
           filters:
               - RewritePath=/api(?<segment>/?.*),$\{segment}
 
@@ -54,6 +54,26 @@ spring:
           #          /api/**  ->   /renren-fast/***
           filters:
             - RewritePath=/api(?<segment>/?.*),/renren-fast$\{segment}
+
+        - id: nginx_search
+          uri: lb://gulimall-search
+          predicates:
+            #nginx代理给网关会丢掉host信息,配置nginx文件设置上host
+            - Host=search.gulimall.com
+
+
+        - id: nginx_index
+          uri: lb://gulimall-product
+          predicates:
+            #nginx代理给网关会丢掉host信息,配置nginx文件设置上host
+            - Host=**.gulimall.com,gulimall.com
+
+
+
+
+
+
+
   application:
     name: gulimall-gateway
 server:

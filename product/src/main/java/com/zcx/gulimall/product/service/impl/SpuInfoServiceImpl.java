@@ -1,5 +1,6 @@
 package com.zcx.gulimall.product.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zcx.common.constant.ProductConstant;
 import com.zcx.common.constant.WareConstant;
@@ -14,6 +15,7 @@ import com.zcx.gulimall.product.feign.EsFeignService;
 import com.zcx.gulimall.product.feign.WareFeignService;
 import com.zcx.gulimall.product.service.*;
 import com.zcx.gulimall.product.vo.*;
+import jdk.nashorn.internal.runtime.JSONFunctions;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
@@ -236,6 +238,11 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 			attr.setAttrValue(l.getAttrValue());
 			return attr;
 		}).collect(Collectors.toList());
+
+
+
+
+
 
 
 

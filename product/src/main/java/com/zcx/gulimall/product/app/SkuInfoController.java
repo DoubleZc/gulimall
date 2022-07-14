@@ -1,12 +1,9 @@
-package com.zcx.gulimall.product.controller;
+package com.zcx.gulimall.product.app;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
-import com.zcx.gulimall.product.vo.SpuSaveVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

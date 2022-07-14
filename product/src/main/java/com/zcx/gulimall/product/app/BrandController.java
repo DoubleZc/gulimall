@@ -1,7 +1,6 @@
-package com.zcx.gulimall.product.controller;
+package com.zcx.gulimall.product.app;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -9,7 +8,6 @@ import com.zcx.common.valid.AddGroup;
 import com.zcx.common.valid.UpdateGroup;
 import com.zcx.common.valid.UpdateStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +15,6 @@ import com.zcx.gulimall.product.entity.BrandEntity;
 import com.zcx.gulimall.product.service.BrandService;
 import com.zcx.common.utils.PageUtils;
 import com.zcx.common.utils.R;
-
-import javax.validation.Valid;
 
 
 /**

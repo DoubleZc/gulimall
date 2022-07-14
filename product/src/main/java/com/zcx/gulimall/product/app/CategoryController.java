@@ -1,8 +1,7 @@
-package com.zcx.gulimall.product.controller;
+package com.zcx.gulimall.product.app;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.zcx.gulimall.product.entity.CategoryEntity;
 import com.zcx.gulimall.product.service.CategoryService;
-import com.zcx.common.utils.PageUtils;
 import com.zcx.common.utils.R;
 
 
