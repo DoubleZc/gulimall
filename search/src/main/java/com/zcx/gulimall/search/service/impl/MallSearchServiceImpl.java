@@ -5,12 +5,15 @@ import co.elastic.clients.elasticsearch._types.FieldSort;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.*;
 import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Highlight;
 import co.elastic.clients.elasticsearch.core.search.HighlightField;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
+import com.zcx.common.to.es.SkuEsModel;
 import com.zcx.gulimall.search.constant.EsContant;
 import com.zcx.gulimall.search.service.MallSearchService;
 import com.zcx.gulimall.search.vo.SearchParam;
@@ -20,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +44,92 @@ public class MallSearchServiceImpl implements MallSearchService
 
 		SearchRequest request = buildSearchRequest(param);
 		try {
-			SearchResponse<SearchRes> search = client.search(request, SearchRes.class);
+			SearchResponse<SkuEsModel> search = client.search(request, SkuEsModel.class);
+
+			SearchRes res = new SearchRes();
+
+			//查询结果数据
+			List<Hit<SkuEsModel>> hits = search.hits().hits();
+			List<SkuEsModel> collect = hits.stream().map(Hit::source
+			).collect(Collectors.toList());
+			res.setProducts(collect);
+
+			//分页信息
+			assert search.hits().total() != null;
+			long total = search.hits().total().value();
+			res.setTotal(total);
+			Integer sumPage = (int) Math.ceil(total / (double) EsContant.PRODUCT_PAGESIZA);
+			res.setTotalPages(sumPage);
+			Integer pageNum = param.getPageNum();
+			res.setPageNum(pageNum);
+
+
+			//聚合信息
+			//三级分类
+			LongTermsAggregate catalog_agg = search.aggregations().get("catalog_agg").lterms();
+			Buckets<LongTermsBucket> buckets = catalog_agg.buckets();
+			List<LongTermsBucket> array = buckets.array();
+			List<SearchRes.Catalog> catalogList = array.stream().map(longTermsBucket -> {
+				SearchRes.Catalog catalog = new SearchRes.Catalog();
+				String catalogId = longTermsBucket.key();
+				catalog.setCatalogId(Long.valueOf(catalogId));
+
+				StringTermsAggregate catalogName_agg = longTermsBucket.aggregations().get("catalogName_agg").sterms();
+				String catalogName = catalogName_agg.buckets().array().get(0).key();
+
+				catalog.setCatalogName(catalogName);
+				return catalog;
+			}).collect(Collectors.toList());
+			res.setCatalogs(catalogList);
+
+
+			//品牌分类
+			LongTermsAggregate brand_agg = search.aggregations().get("brand_agg").lterms();
+			List<SearchRes.Brand> brandList = brand_agg.buckets().array().stream().map(
+					longTermsBucket -> {
+						SearchRes.Brand brand = new SearchRes.Brand();
+						String brandId = longTermsBucket.key();
+						brand.setBrandId(Long.valueOf(brandId));
+
+						StringTermsAggregate brandImg_agg = longTermsBucket.aggregations().get("brandImg_agg").sterms();
+						String brandImg = brandImg_agg.buckets().array().get(0).key();
+						brand.setBrandImg(brandImg);
+
+						StringTermsAggregate brandName_agg = longTermsBucket.aggregations().get("brandName_agg").sterms();
+						String brandName = brandName_agg.buckets().array().get(0).key();
+						brand.setBrandImg(brandName);
+
+						return brand;
+			}).collect(Collectors.toList());
+			res.setBrands(brandList);
+
+
+
+			//属性分类
+			NestedAggregate attr_agg = search.aggregations().get("attr_agg").nested();
+			List<SearchRes.Attr> attrList = attr_agg.aggregations().get("attr_agg").lterms().buckets().array().stream().map(
+					longTermsBucket -> {
+						SearchRes.Attr attr = new SearchRes.Attr();
+						String attrId = longTermsBucket.key();
+						attr.setAttrId(Long.valueOf(attrId));
+
+						StringTermsAggregate attrValue = longTermsBucket.aggregations().get("attr_agg-Value_agg").sterms();
+						List<String> aValue = attrValue.buckets().array().stream().map(StringTermsBucket::key).collect(Collectors.toList());
+						attr.setAttrValue(aValue);
+
+
+						StringTermsAggregate attrName = longTermsBucket.aggregations().get("attr_agg-Name_agg").sterms();
+						String aName = attrName.buckets().array().get(0).key();
+						attr.setAttrName(aName);
+
+						return attr;
+					}).collect(Collectors.toList());
+			res.setAttrs(attrList);
+
+
+
+
+
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -233,31 +322,68 @@ public class MallSearchServiceImpl implements MallSearchService
 
 		/*排序条件*/
 		//sort=hotscore_asc/desc
-		if (Strings.isNotEmpty(param.getSort())){
+		if (Strings.isNotEmpty(param.getSort())) {
 			SortOptions.Builder sortQuery = new SortOptions.Builder();
 			String[] s = param.getSort().split("_");
 			FieldSort.Builder builder = new FieldSort.Builder();
-			SortOrder order = s[1].equalsIgnoreCase(SortOrder.Desc.jsonValue())?SortOrder.Desc:SortOrder.Asc;
+			SortOrder order = s[1].equalsIgnoreCase(SortOrder.Desc.jsonValue()) ? SortOrder.Desc : SortOrder.Asc;
 			builder.field(s[0]).order(order);
 			sortQuery.field(builder.build());
 			requestBuilder.sort(sortQuery.build());
 		}
 
 
-
 		/*分页*/
 		requestBuilder.from((param.getPageNum() - 1) * EsContant.PRODUCT_PAGESIZA);
 		requestBuilder.size(EsContant.PRODUCT_PAGESIZA);
 
+
 		/*高亮*/
-		if (Strings.isNotEmpty(param.getKeyword())){
+		if (Strings.isNotEmpty(param.getKeyword())) {
 			Highlight.Builder hLight = new Highlight.Builder();
 			HighlightField.Builder hField = new HighlightField.Builder();
 			hField.preTags("<b style='color:red'>");
 			hField.postTags("</b>");
-			hLight.fields("skuTitle",hField.build());
+			hLight.fields("skuTitle", hField.build());
 			requestBuilder.highlight(hLight.build());
 		}
+
+
+		/*聚合*/
+		//品牌聚合
+		requestBuilder.aggregations("brand_agg", brandAgg -> {
+			brandAgg.aggregations("brandName_agg", nameAgg ->
+					nameAgg.terms(terms -> terms.field("brandName").size(10))
+			);
+			brandAgg.aggregations("brandImg_agg", imgAgg ->
+					imgAgg.terms(terms -> terms.field("brandImg").size(10))
+			);
+			return brandAgg.terms(terms -> terms.field("brandId").size(10));
+		});
+
+		//三级分类聚合
+		requestBuilder.aggregations("catalog_agg", catalogAgg -> {
+			catalogAgg.aggregations("catalogName_agg", nameAgg ->
+					nameAgg.terms(term -> term.field("catalogName").size(10))
+			);
+			return catalogAgg.terms(term -> term.field("catalogId").size(10));
+		});
+
+
+		//属性聚合
+		requestBuilder.aggregations("attr_agg", attrAgg -> {
+			attrAgg.aggregations("attr_agg", attrN -> {
+				attrN.aggregations("attr_agg-Name_agg", nameAgg ->
+						nameAgg.terms(term -> term.field("attrs.attrName").size(10))
+				);
+				attrN.aggregations("attr_agg-Value_agg", valueAgg ->
+						valueAgg.terms(term -> term.field("attrs.attrValue").size(10))
+				);
+				return attrN.terms(term -> term.field("attrs.attrId").size(10));
+			});
+			return attrAgg.nested(n -> n.path("attrs"));
+		});
+
 
 		return requestBuilder.build();
 	}

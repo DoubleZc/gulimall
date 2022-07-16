@@ -10,6 +10,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.TotalHits;
 import com.zcx.common.to.es.SkuEsModel;
 import com.zcx.gulimall.search.service.MallSearchService;
 import com.zcx.gulimall.search.service.impl.MallSearchServiceImpl;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +69,6 @@ class SearchApplicationTests
 	{
 		SearchParam searchParam = new SearchParam();
 
-		searchParam.setKeyword("HUAWEI");
 		searchParam.setCatalog3Id(225L);
 		List<Long> ids=new ArrayList<>();
 		ids.add(6L);
@@ -75,7 +76,9 @@ class SearchApplicationTests
 		searchParam.setBrandId(ids);
 //		attr=1_海思:塞班
 		List<String> attrs =new ArrayList<>();
-		attrs.add("15_海思（Hisilicon）:dawd");
+		attrs.add("15_海思（Hisilicon）:Apple");
+		attrs.add("16_HUAWEI Kirin 980");
+
 		searchParam.setAttrs(attrs);
 		searchParam.setHasStock(0);
 		searchParam.setSkuPrice("2000_");
@@ -90,6 +93,25 @@ class SearchApplicationTests
 				SkuEsModel.class
 		);
 
+		TotalHits total = response.hits().total();
+		Map<String, Aggregate> aggregations = response.aggregations();
+		Aggregate catalog_agg = aggregations.get("catalog_agg");
+		LongTermsAggregate aggregateVariant = (LongTermsAggregate) catalog_agg._get();
+		Buckets<LongTermsBucket> buckets = aggregateVariant.buckets();
+
+		List<LongTermsBucket> array = buckets.array();
+		for (LongTermsBucket longTermsBucket : array) {
+			String key = longTermsBucket.key();
+			System.out.println(key);
+			StringTermsAggregate catalogName_agg = longTermsBucket.aggregations().get("catalogName_agg").sterms();
+			List<StringTermsBucket> array1 = catalogName_agg.buckets().array();
+			String key1 = array1.get(0).key();
+			System.out.println(key1);
+
+		}
+
+
+		System.out.println(total.value());
 		List<Hit<SkuEsModel>> hits = response.hits().hits();
 
 
@@ -101,7 +123,6 @@ class SearchApplicationTests
 
 	@Test
 	public  void test1(){
-
 
 
 

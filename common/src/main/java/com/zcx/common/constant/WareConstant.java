@@ -74,6 +74,7 @@ public class WareConstant
 
 		}
 
+
 		public boolean isHave()
 		{
 			return isHave;
