@@ -12,6 +12,7 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Highlight;
 import co.elastic.clients.elasticsearch.core.search.HighlightField;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.nodes.Ingest;
 import co.elastic.clients.json.JsonData;
 import com.zcx.common.to.es.SkuEsModel;
 import com.zcx.gulimall.search.constant.EsContant;
@@ -23,9 +24,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -35,22 +38,36 @@ public class MallSearchServiceImpl implements MallSearchService
 
 	@Autowired
 	ElasticsearchClient client;
-	private HighlightField.Builder hField;
+
 
 
 	@Override
 	public SearchRes search(SearchParam param)
 	{
+		SearchRes res = new SearchRes();
+		SearchRequest request = buildSearchRequest(param,res);
 
-		SearchRequest request = buildSearchRequest(param);
 		try {
+
+			System.out.println(request);
+
 			SearchResponse<SkuEsModel> search = client.search(request, SkuEsModel.class);
 
-			SearchRes res = new SearchRes();
+
 
 			//查询结果数据
 			List<Hit<SkuEsModel>> hits = search.hits().hits();
-			List<SkuEsModel> collect = hits.stream().map(Hit::source
+			List<SkuEsModel> collect = hits.stream().map(hit->{
+				SkuEsModel source = hit.source();
+				if (!hit.highlight().isEmpty())
+				{
+					List<String> list = hit.highlight().get("skuTitle");
+					String s = list.get(0);
+					assert source != null;
+					source.setSkuTitle(s);
+				}
+				return  source;
+					}
 			).collect(Collectors.toList());
 			res.setProducts(collect);
 
@@ -58,10 +75,16 @@ public class MallSearchServiceImpl implements MallSearchService
 			assert search.hits().total() != null;
 			long total = search.hits().total().value();
 			res.setTotal(total);
-			Integer sumPage = (int) Math.ceil(total / (double) EsContant.PRODUCT_PAGESIZA);
+			int sumPage = (int) Math.ceil(total / (double) EsContant.PRODUCT_PAGESIZA);
+			List<Integer>pag=new ArrayList<>();
+			for (int i = 1; i <= sumPage; i++) {
+				pag.add(i-1,i);
+			}
+			res.setPag(pag);
 			res.setTotalPages(sumPage);
 			Integer pageNum = param.getPageNum();
 			res.setPageNum(pageNum);
+
 
 
 			//聚合信息
@@ -97,7 +120,7 @@ public class MallSearchServiceImpl implements MallSearchService
 
 						StringTermsAggregate brandName_agg = longTermsBucket.aggregations().get("brandName_agg").sterms();
 						String brandName = brandName_agg.buckets().array().get(0).key();
-						brand.setBrandImg(brandName);
+						brand.setBrandName(brandName);
 
 						return brand;
 			}).collect(Collectors.toList());
@@ -127,6 +150,48 @@ public class MallSearchServiceImpl implements MallSearchService
 			res.setAttrs(attrList);
 
 
+			Map<Long, String> attrMap = attrList.stream().collect(Collectors.toMap(SearchRes.Attr::getAttrId,SearchRes.Attr::getAttrName));
+
+
+			System.out.println("=================");
+			//面包屑导航数据
+
+			if (param.getAttrs()!=null&&!param.getAttrs().isEmpty()&&!attrList.isEmpty()) {
+				List<SearchRes.Nav> collect1 = param.getAttrs().stream().map(a -> {
+					SearchRes.Nav nav = new SearchRes.Nav();
+					String[] s = a.split("_");
+					String attrNmame = attrMap.get(Long.valueOf(s[0]));
+
+					String url = param.get_url();
+					try {
+
+						a = URLEncoder.encode(a,"utf-8");
+						a = a.replace("+", "%20");
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}
+
+					System.out.println(url);
+					System.out.println(a);
+					String replace = url.replace("attrs="+a+"&", "").replace("&"+"attrs="+a, "");
+					String _url = replace.replace( "attrs="+a, "");
+
+					System.out.println(_url);
+					nav.setNavName(attrNmame);
+					nav.setNavValue(s[1]);
+					nav.setLink("http://search.gulimall.com/list.html?"+_url);
+					return nav;
+				}).collect(Collectors.toList());
+
+				collect1.forEach(System.out::println);
+				res.setNavs(collect1);
+			}
+
+
+
+
+
+
 
 
 
@@ -135,10 +200,10 @@ public class MallSearchServiceImpl implements MallSearchService
 			e.printStackTrace();
 		}
 
-		return null;
+		return res;
 	}
 
-	public SearchRequest buildSearchRequest(SearchParam param)
+	public SearchRequest buildSearchRequest(SearchParam param,SearchRes res)
 	{
 		/*SearchRequest request1 = new SearchRequest.Builder().index(EsContant.PRODUCT_INDEX).query(q -> {
 			return q.bool(b -> {
@@ -266,17 +331,20 @@ public class MallSearchServiceImpl implements MallSearchService
 			boolQuery.filter(RangeQuery.of(
 					r -> {
 						String[] s = param.getSkuPrice().split("_");
-						if (s.length == 2)
+						if (Strings.isNotEmpty(s[0])) {
 							//1_500
-							r.field("skuPrice").gte(JsonData.of(s[0])).lte(JsonData.of(s[1]));
-						if (s.length == 1) {
-							if (param.getSkuPrice().startsWith("_")) {
-								//_500
-								r.field("skuPrice").lte(JsonData.of(s[0]));
-							} else {
-								//500_
-								r.field("skuPrice").gte(JsonData.of(s[0]));
+							r.field("skuPrice").gte(JsonData.of(Double.valueOf(s[0])));
+							if (s.length==2)
+							{
+								//100_
+								r.field("skuPrice").lte(JsonData.of(Double.valueOf(s[1])));
 							}
+
+						}
+						else
+						{
+							//_100
+							r.field("skuPrice").lte(JsonData.of(Double.valueOf(s[1])));
 						}
 						return r;
 					}
@@ -295,8 +363,11 @@ public class MallSearchServiceImpl implements MallSearchService
 										{
 											attrB.must(attrM ->
 													//第一个条件id相等
-													attrM.term(attrTerm1 ->
-															attrTerm1.field("attrs.attrId").value(s[0])
+													attrM.term(attrTerm1 -> {
+																attrTerm1.field("attrs.attrId").value(s[0]);
+																res.getAttrIds().add(Long.valueOf(s[0]));
+																return attrTerm1;
+															}
 													));
 											attrB.must(attrM -> {
 												String[] attrValue = s[1].split(":");

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.zcx.common.utils.PageUtils;
 import com.zcx.gulimall.product.entity.ProductAttrValueEntity;
 import com.zcx.gulimall.product.vo.BaseAttrs;
+import com.zcx.gulimall.product.vo.SkuItemVo;
 
 import java.util.List;
 import java.util.Map;
@@ -23,5 +24,7 @@ public interface ProductAttrValueService extends IService<ProductAttrValueEntity
 	List<ProductAttrValueEntity> baseAttrListForSpu(Long spuId);
 
 	void updateSpu(Long spuId,List<ProductAttrValueEntity> productAttrValueEntity);
+
+	List<SkuItemVo.SpuItemBaseAttr> listBySpuId(Long spuId);
 }
 

@@ -7,6 +7,7 @@ import com.zcx.gulimall.product.entity.AttrGroupEntity;
 import com.zcx.gulimall.product.vo.AttrRespVo;
 import com.zcx.gulimall.product.vo.AttrVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,14 +20,16 @@ import java.util.Map;
 public interface AttrService extends IService<AttrEntity>
 {
 
-AttrGroupEntity getGroupByAttr(Long attrId);
+	AttrGroupEntity getGroupByAttr(Long attrId);
 
-void saveAttr(AttrVo attr);
+	List<AttrGroupEntity> listGroupByAttr(List<Long> attrIds);
 
-PageUtils queryBasePage(Map<String, Object> params, Long catelogId, String type);
+	void saveAttr(AttrVo attr);
 
-AttrRespVo attrInfo(Long attrId);
+	PageUtils queryBasePage(Map<String, Object> params, Long catelogId, String type);
 
-void updateAttr(AttrVo attr);
+	AttrRespVo attrInfo(Long attrId);
+
+	void updateAttr(AttrVo attr);
 }
 

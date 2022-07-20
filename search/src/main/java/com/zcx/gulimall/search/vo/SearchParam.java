@@ -18,6 +18,9 @@ public class SearchParam
 	Integer pageNum=1;
 
 
+	String _url;
+
+
 
 
 }

@@ -61,7 +61,6 @@ spring:
             #nginx代理给网关会丢掉host信息,配置nginx文件设置上host
             - Host=search.gulimall.com
 
-
         - id: nginx_index
           uri: lb://gulimall-product
           predicates:

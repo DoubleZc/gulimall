@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -145,6 +144,26 @@ public AttrGroupEntity getGroupByAttr(Long attrId)
 	}
 	return null;
 }
+
+
+	@Override
+	public List<AttrGroupEntity> listGroupByAttr(List<Long> Ids)
+	{
+		LambdaQueryWrapper<AttrAttrgroupRelationEntity> wrapper = new LambdaQueryWrapper<>();
+		wrapper.in(AttrAttrgroupRelationEntity::getAttrId,Ids);
+		List<AttrAttrgroupRelationEntity> list = relationService.list(wrapper);
+		List<Long> groupIds = list.stream().map(AttrAttrgroupRelationEntity::getAttrGroupId).collect(Collectors.toList());
+
+		if (!groupIds.isEmpty()) {
+
+			return attrGroupService.list(new LambdaQueryWrapper<AttrGroupEntity>().in(AttrGroupEntity::getAttrGroupId, groupIds));
+		}
+		return null;
+	}
+
+
+
+
 
 
 @Transactional

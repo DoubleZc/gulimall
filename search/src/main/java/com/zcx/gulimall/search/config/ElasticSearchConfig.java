@@ -24,5 +24,6 @@ public class ElasticSearchConfig
 				restClient, new JacksonJsonpMapper());
 		// And create the API client
 		return new ElasticsearchClient(transport);
+
 	}
 }

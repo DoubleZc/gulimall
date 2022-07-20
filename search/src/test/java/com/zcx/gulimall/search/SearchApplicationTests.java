@@ -12,11 +12,13 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.TotalHits;
 import com.zcx.common.to.es.SkuEsModel;
+import com.zcx.gulimall.search.constant.EsContant;
 import com.zcx.gulimall.search.service.MallSearchService;
 import com.zcx.gulimall.search.service.impl.MallSearchServiceImpl;
 import com.zcx.gulimall.search.vo.SearchParam;
 import com.zcx.gulimall.search.vo.SearchRes;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.util.Strings;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,6 +27,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.FutureTask;
 
 @Slf4j
 @SpringBootTest(classes = SearchApplication.class)
@@ -68,7 +71,7 @@ class SearchApplicationTests
 	void test() throws Exception
 	{
 		SearchParam searchParam = new SearchParam();
-
+		searchParam.setKeyword("HUAWEI");
 		searchParam.setCatalog3Id(225L);
 		List<Long> ids=new ArrayList<>();
 		ids.add(6L);
@@ -87,44 +90,58 @@ class SearchApplicationTests
 
 
 
-		SearchRequest request = mallSearchService.buildSearchRequest(searchParam);
-		System.out.println(request);
-		SearchResponse<SkuEsModel> response = client.search(request,
-				SkuEsModel.class
-		);
-
-		TotalHits total = response.hits().total();
-		Map<String, Aggregate> aggregations = response.aggregations();
-		Aggregate catalog_agg = aggregations.get("catalog_agg");
-		LongTermsAggregate aggregateVariant = (LongTermsAggregate) catalog_agg._get();
-		Buckets<LongTermsBucket> buckets = aggregateVariant.buckets();
-
-		List<LongTermsBucket> array = buckets.array();
-		for (LongTermsBucket longTermsBucket : array) {
-			String key = longTermsBucket.key();
-			System.out.println(key);
-			StringTermsAggregate catalogName_agg = longTermsBucket.aggregations().get("catalogName_agg").sterms();
-			List<StringTermsBucket> array1 = catalogName_agg.buckets().array();
-			String key1 = array1.get(0).key();
-			System.out.println(key1);
-
-		}
-
-
-		System.out.println(total.value());
-		List<Hit<SkuEsModel>> hits = response.hits().hits();
-
-
-		hits.forEach(System.out::println);
-
 
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	@Test
 	public  void test1(){
 
 
+
+		SearchParam searchParam = new SearchParam();
+//		searchParam.setKeyword("HUAWEI");
+//		searchParam.setCatalog3Id(225L);
+		List<Long> ids=new ArrayList<>();
+		ids.add(6L);
+		ids.add(3L);
+//		searchParam.setBrandId(ids);
+		//		attr=1_海思:塞班
+		List<String> attrs =new ArrayList<>();
+//		attrs.add("15_海思（Hisilicon）:Apple");
+//		attrs.add("16_HUAWEI Kirin 980");
+
+//		searchParam.setAttrs(attrs);
+//		searchParam.setHasStock(0);
+		searchParam.setSkuPrice("3000_");
+//		searchParam.setSort("skuPrice_desc");
+
+		SearchRes search = mallSearchService.search(searchParam);
+
+
+		System.out.println(search.getTotal());
+		System.out.println(search.toString());
+		List<SearchRes.Attr> attrs1 = search.getAttrs();
+		attrs1.forEach(System.out::println);
+		List<SearchRes.Brand> brands = search.getBrands();
+		brands.forEach(System.out::println);
+		List<SearchRes.Catalog> catalogs = search.getCatalogs();
+		catalogs.forEach(System.out::println);
 
 	}
 
