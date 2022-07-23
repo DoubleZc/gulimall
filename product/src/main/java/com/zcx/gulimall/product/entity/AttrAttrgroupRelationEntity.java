@@ -1,5 +1,6 @@
 package com.zcx.gulimall.product.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -35,6 +36,7 @@ public class AttrAttrgroupRelationEntity implements Serializable {
 	/**
 	 * 属性组内排序
 	 */
+	@TableField
 	private Integer attrSort;
 
 }

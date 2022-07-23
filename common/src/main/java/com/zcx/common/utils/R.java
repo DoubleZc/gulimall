@@ -45,7 +45,15 @@ public class R extends HashMap<String, Object> {
 	public static R error(ExceptionCode code) {
 		R r = new R();
 		r.put("code", code.getCode());
-		r.put("msg", code.getMessage());
+		r.put("msg", code.getMsg());
+		return r;
+	}
+
+
+	public static R ok(ExceptionCode code) {
+		R r = new R();
+		r.put("code", code.getCode());
+		r.put("msg", code.getMsg());
 		return r;
 	}
 

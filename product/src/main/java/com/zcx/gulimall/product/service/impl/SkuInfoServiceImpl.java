@@ -10,11 +10,13 @@ import com.zcx.gulimall.product.vo.SpuSaveVo;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -28,8 +30,8 @@ import com.zcx.gulimall.product.entity.SkuInfoEntity;
 
 
 @Service("skuInfoService")
-public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> implements SkuInfoService {
-
+public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> implements SkuInfoService
+{
 
 
 	@Autowired
@@ -47,40 +49,40 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 	ProductAttrValueService productAttrValueService;
 
 
-    @Override
-    public PageUtils queryPage(Map<String, Object> params) {
-        IPage<SkuInfoEntity> page = this.page(
-                new Query<SkuInfoEntity>().getPage(params),
-                new QueryWrapper<SkuInfoEntity>()
-        );
+	@Autowired
+	ThreadPoolExecutor threadPoolExecutor;
 
-        return new PageUtils(page);
-    }
+	@Override
+	public PageUtils queryPage(Map<String, Object> params)
+	{
+		IPage<SkuInfoEntity> page = this.page(
+				new Query<SkuInfoEntity>().getPage(params),
+				new QueryWrapper<SkuInfoEntity>()
+		);
+
+		return new PageUtils(page);
+	}
 
 	@Override
 	public PageUtils queryPageByCondition(Map<String, Object> params)
 	{
 		LambdaQueryWrapper<SkuInfoEntity> wrapper = new LambdaQueryWrapper<>();
-		String brandId = (String)params.get("brandId");
-		String catelogId =(String)params.get("catelogId");
-		String key=(String)params.get("key");
-		Integer min = Integer.valueOf((String) params.get("min"));
-		Integer max = Integer.valueOf((String) params.get("max"));
-		wrapper.eq(!"0".equals(brandId),SkuInfoEntity::getBrandId,Long.valueOf(brandId));
-		wrapper.eq(!"0".equals(brandId),SkuInfoEntity::getCatalogId,Long.valueOf(catelogId));
-		wrapper.and(Strings.isNotEmpty(key),w->{
-			w.like(SkuInfoEntity::getSkuName,key).or().like(SkuInfoEntity::getSkuDesc,key);
+		String brandId = (String) params.get("brandId");
+		String catelogId = (String) params.get("catelogId");
+		String key = (String) params.get("key");
+		int min = Integer.parseInt((String) params.get("min"));
+		int max = Integer.parseInt((String) params.get("max"));
+		wrapper.eq(!"0".equals(brandId), SkuInfoEntity::getBrandId, Long.valueOf(brandId));
+		wrapper.eq(!"0".equals(brandId), SkuInfoEntity::getCatalogId, Long.valueOf(catelogId));
+		wrapper.and(Strings.isNotEmpty(key), w -> {
+			w.like(SkuInfoEntity::getSkuName, key).or().like(SkuInfoEntity::getSkuDesc, key);
 		});
-		wrapper.ge(min!=0,SkuInfoEntity::getPrice,min);
-		wrapper.le(max!=0,SkuInfoEntity::getPrice,max);
-
-
-
+		wrapper.ge(min != 0, SkuInfoEntity::getPrice, min);
+		wrapper.le(max != 0, SkuInfoEntity::getPrice, max);
 
 
 		IPage<SkuInfoEntity> page = this.page(
 				new Query<SkuInfoEntity>().getPage(params),
-
 				wrapper
 
 		);
@@ -91,43 +93,57 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 	@Override
 	public List<SkuInfoEntity> getBySpuId(Long spuId)
 	{
-
 		return list(new LambdaQueryWrapper<SkuInfoEntity>().eq(SkuInfoEntity::getSpuId, spuId));
 	}
 
+
+
+	@Cacheable(value = {"product"},key = "#skuId")
 	@Override
 	public SkuItemVo item(Long skuId)
 	{
 		SkuItemVo skuItemVo = new SkuItemVo();
-		SkuInfoEntity infoEntity = getById(skuId);
-		skuItemVo.setInfo(infoEntity);
-		List<SkuImagesEntity> list = skuImagesService.listBySkuId(skuId);
-		skuItemVo.setImages(list);
-		Long spuId = infoEntity.getSpuId();
+		CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
+			//获取图片信息
+			List<SkuImagesEntity> list = skuImagesService.listBySkuId(skuId);
+			skuItemVo.setImages(list);
+		}, threadPoolExecutor);
 
-		List<SkuInfoEntity> skuInfoEntities = list(new LambdaQueryWrapper<SkuInfoEntity>().eq(SkuInfoEntity::getSpuId, spuId));
-		List<Long> collect = skuInfoEntities.stream().map(SkuInfoEntity::getSkuId).collect(Collectors.toList());
+		CompletableFuture<SkuInfoEntity> future = CompletableFuture.supplyAsync(() -> {
+			//获取基本信息
+			SkuInfoEntity infoEntity = getById(skuId);
+			skuItemVo.setInfo(infoEntity);
+			return infoEntity;
+		}, threadPoolExecutor);
+		//future后续
+		CompletableFuture<Void> future2 = future.thenAcceptAsync(skuInfoEntity -> {
+			//获取描述图片
+			SpuInfoDescEntity one = spuInfoDescService.getBySpuId(skuInfoEntity.getSpuId());
+			skuItemVo.setDesc(one);
+		}, threadPoolExecutor);
+		//future后续
+		CompletableFuture<Void> future3 = future.thenAcceptAsync(skuInfoEntity -> {
+			//获取属性组信息
+			List<SkuItemVo.SpuItemBaseAttr> spuItemBaseAttr = productAttrValueService.listBySpuId(skuInfoEntity.getSpuId());
+			skuItemVo.setGroupAttrs(spuItemBaseAttr);
+		}, threadPoolExecutor);
 
+		//future后续
+		CompletableFuture<List<SkuItemVo.SkuSaleAttr>> listCompletableFuture = future.thenApplyAsync(skuInfoEntity -> skuSaleAttrValueService.attrRSkuId(skuInfoEntity.getSpuId()), threadPoolExecutor);
+		//listCompletableFuture后续
+		CompletableFuture<Void> future4 = listCompletableFuture.thenAcceptAsync(skuSaleAttrs -> {
+			//获取属性信息
+			List<SkuItemVo.SkuSaleAttr> saleAttrs = skuSaleAttrValueService.listBySkuId(skuSaleAttrs, skuId);
+			skuItemVo.setSkuSaleAttrs(saleAttrs);
+		});
+		CompletableFuture<Void> futureAll = CompletableFuture.allOf(future1,future2,future3,future4);
 
-		SpuInfoDescEntity one = spuInfoDescService.getBySpuId(spuId);
-		skuItemVo.setDesc(one);
-
-
-		List<SkuItemVo.SpuItemBaseAttr>spuItemBaseAttr=productAttrValueService.listBySpuId(spuId);
-		skuItemVo.setGroupAttrs(spuItemBaseAttr);
-
-
-
-		List<SkuItemVo.SkuSaleAttr> skuSaleAttrs=skuSaleAttrValueService.listBySkuId(skuId);
-		skuItemVo.setSkuSaleAttrs(skuSaleAttrs);
-
-
-		Map<Long,List<SkuItemVo.SkuSaleAttr>> spuAttrs=skuSaleAttrValueService.MapBySpuId(collect);
-		skuItemVo.setSpuAttrs(spuAttrs);
-
-
+		try {
+			futureAll.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return skuItemVo;
-
 	}
 
 

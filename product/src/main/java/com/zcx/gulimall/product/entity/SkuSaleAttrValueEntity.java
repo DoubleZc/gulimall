@@ -1,5 +1,6 @@
 package com.zcx.gulimall.product.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -44,5 +45,9 @@ public class SkuSaleAttrValueEntity implements Serializable {
 	 * 顺序
 	 */
 	private Integer attrSort;
+
+
+	@TableField(exist = false)
+	private String attr;
 
 }

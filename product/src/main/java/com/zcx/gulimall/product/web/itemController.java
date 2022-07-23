@@ -5,6 +5,7 @@ import com.zcx.gulimall.product.service.SkuInfoService;
 import com.zcx.gulimall.product.vo.SkuItemVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -16,13 +17,10 @@ public class itemController
 	SkuInfoService skuInfoService;
 
 	@RequestMapping("/{skuId}.html")
-	public String skuItem(@PathVariable Long skuId)
+	public String skuItem(@PathVariable Long skuId, Model model)
 	{
-
-
 		SkuItemVo skuItemvo = skuInfoService.item(skuId);
-
-
+		model.addAttribute("item",skuItemvo);
 		return "item";
 	}
 

@@ -70,6 +70,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 	 */
 
 
+
 	@CacheEvict(value = {"category"}, allEntries = true)
 	@Override
 	@Transactional
@@ -90,7 +91,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 	 * @return
 	 */
 
-	@Cacheable(value = {"category"}, key = "#root.method.name",sync = true)
+	@Cacheable(value = {"category"}, key = "#root.method.name" +
+			"",sync = true)
 	@Override
 	public List<CategoryEntity> listRoot(Integer index)
 	{

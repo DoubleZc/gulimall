@@ -40,7 +40,12 @@ server:
 logging:
   level:
     com.zcx.gulimall: error
-
+gulimall:
+  thread:
+    core-size: 20
+    maximum-pool-size: 200
+    keep-alive-time: 15
+    queue-size: 10000
 
 
 

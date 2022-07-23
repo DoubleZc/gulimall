@@ -14,4 +14,30 @@
     </resultMap>
 
 
+	<select id="attrRSkuId" resultType="com.zcx.gulimall.product.vo.SkuItemVo$SkuSaleAttr">
+
+		SELECT psa.attr_id, psa.attr_name, GROUP_CONCAT(DISTINCT (psa.attr_value)) as attr_values
+		FROM gulimall_pms.pms_sku_info psi
+			     LEFT JOIN gulimall_pms.pms_sku_sale_attr_value psa ON psi.sku_id = psa.sku_id
+		WHERE spu_id = #{spuId}
+		GROUP BY psa.attr_id;
+	</select>
+
+
+
+
+
+	<select id="skuIds" resultType="com.zcx.gulimall.product.vo.SkuItemVo$attrRSkuId">
+		SELECT
+		psa.attr_value AS name,
+		GROUP_CONCAT(psa.sku_id) skuIds
+		from  gulimall_pms.pms_sku_sale_attr_value psa
+		WHERE psa.attr_value in
+		<foreach collection="values" open="(" close=")" separator="," item="value">
+			#{value}
+		</foreach>
+		GROUP BY psa.attr_id, psa.attr_value;
+	</select>
+
+
 </mapper>

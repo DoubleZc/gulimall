@@ -1,6 +1,7 @@
 package com.gulimall.config;
 
 
+import com.alibaba.nacos.common.http.HttpUtils;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

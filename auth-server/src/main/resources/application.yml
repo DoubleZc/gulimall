@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: auth-server
+  thymeleaf:
+    cache: false
+  redis:
+    host: 192.168.182.128
+    port: 6379
+
+server:
+  port: 700

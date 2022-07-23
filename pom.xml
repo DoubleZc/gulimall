@@ -23,5 +23,6 @@
 		<module>gateway</module>
 		<module>thired</module>
 		<module>search</module>
+		<module>auth-server</module>
 	</modules>
 </project>

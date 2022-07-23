@@ -1992,7 +1992,7 @@
 
 
     function searchByKeyword() {
-        searchProducts("keyword", $("#keyword_input").val());
+        location.href = replaceAndAddParamVal(location.href,"keyword",$("#keyword_input").val());
     }
 
 

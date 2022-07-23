@@ -55,6 +55,13 @@ spring:
           filters:
             - RewritePath=/api(?<segment>/?.*),/renren-fast$\{segment}
 
+        - id: nginx_auth
+          uri: lb://auth-server
+          predicates:
+            #nginx代理给网关会丢掉host信息,配置nginx文件设置上host
+            - Host=auth.gulimall.com
+
+
         - id: nginx_search
           uri: lb://gulimall-search
           predicates:
