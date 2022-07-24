@@ -1,21 +1,38 @@
 package com.zcx.gulimall.web;
 
 
+import com.baomidou.mybatisplus.core.toolkit.EncryptUtils;
 import com.zcx.common.constant.AuthConstant;
 import com.zcx.common.utils.ExceptionCode;
 import com.zcx.common.utils.R;
+import com.zcx.gulimall.feign.MemberFeignService;
 import com.zcx.gulimall.feign.ThiredFeignSerice;
 import com.zcx.gulimall.utils.ValidateCodeUtils;
+import com.zcx.gulimall.vo.UserLoginVo;
 import com.zcx.gulimall.vo.UserRegistVo;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.crypto.generators.SCrypt;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.DigestUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.crypto.spec.PBEKeySpec;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -28,6 +45,13 @@ public class LoginController
 
 	@Autowired
 	StringRedisTemplate redisTemplate;
+
+	@Autowired
+	RedissonClient redissonClient;
+
+
+	@Autowired
+	MemberFeignService memberFeignService;
 
 	@ResponseBody
 	@GetMapping("/sms/sendcode")
@@ -62,14 +86,77 @@ public class LoginController
 
 
 	@PostMapping("/regist")
-	public String regist(@Validated UserRegistVo vo, Model model)
+	public String regist(@Validated UserRegistVo vo, BindingResult bindingResult
+	, RedirectAttributes redirectAttributes)
 	{
 
 
+		if (bindingResult.hasErrors())
+		{
+			List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+			Map<String, String> errors = fieldErrors.stream().collect(Collectors.toMap(FieldError::getField, DefaultMessageSourceResolvable::getDefaultMessage));
+			redirectAttributes.addFlashAttribute("errors",errors);
+			return  "redirect:http://auth.gulimall.com/reg.html";
+		}
 
+		String code = vo.getCode();
+		RLock codeLock = redissonClient.getLock("codeLock");
 
-		return "redirect:/login.html";
+		//分布式锁
+		codeLock.lock();
+		String codeTime = redisTemplate.opsForValue().get(AuthConstant.SMS_CODE_PREFIX + vo.getMobile());
+		if (codeTime!=null &&codeTime.split("_")[0].equals(code))
+		{
+			//删除验证码
+			redisTemplate.delete(AuthConstant.SMS_CODE_PREFIX + vo.getMobile());
+			codeLock.unlock();
+			//验证码正确
+			//远程调用注册
+			R r = memberFeignService.save(vo);
+			if (r.getCode()==0)
+			{
+				redirectAttributes.addFlashAttribute("code", 0);
+				return "redirect:http://auth.gulimall.com/login.html";
+			}else
+			{
+				redirectAttributes.addFlashAttribute("errors", r);
+				return "redirect:http://auth.gulimall.com/reg.html";
+			}
+
+		}else {
+			codeLock.unlock();
+			Map<String, String> errors = new HashMap<>();
+			errors.put("code", "验证码错误");
+			redirectAttributes.addFlashAttribute("errors", errors);
+			return "redirect:http://auth.gulimall.com/reg.html";
+		}
 	}
+
+
+	@PostMapping("/login")
+	public String login(@Validated UserLoginVo vo,RedirectAttributes attributes)
+	{
+		log.warn("登录:账号{},密码{}",vo.getUsername(),vo.getPassword());
+		R login=new R();
+		try {
+			 login = memberFeignService.login(vo);
+			if (login.getCode()==0)
+			{
+				return "redirect:http://gulimall.com";
+
+
+			}
+
+		} catch (Exception e) {
+			login = R.error(ExceptionCode.FEIGN_EXCEPTION);
+		}
+		attributes.addFlashAttribute("errors",login);
+		return "redirect:http://auth.gulimall.com/login.html";
+
+
+	}
+
+
 
 
 

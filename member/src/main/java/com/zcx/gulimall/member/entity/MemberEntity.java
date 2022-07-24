@@ -1,5 +1,7 @@
 package com.zcx.gulimall.member.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -91,6 +93,15 @@ public class MemberEntity implements Serializable {
 	/**
 	 * 注册时间
 	 */
+	@TableField(fill= FieldFill.INSERT)
 	private Date createTime;
+	/***
+	 *
+	 * GithubId
+	 */
+	private Long github;
+
+
+
 
 }

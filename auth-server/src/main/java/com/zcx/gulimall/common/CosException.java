@@ -1,6 +1,7 @@
 package com.zcx.gulimall.common;
 
 
+import com.zcx.common.utils.CheckException;
 import com.zcx.common.utils.ExceptionCode;
 import com.zcx.common.utils.R;
 import lombok.extern.slf4j.Slf4j;
@@ -28,4 +29,14 @@ public class CosException {
 		});
 		return R.error(ExceptionCode.VALID_EXCEPTION).put("data", map);
 	}
+
+
+	@ExceptionHandler(CheckException.class)
+	public R check(CheckException e)
+	{
+		return R.error(e.getCode());
+	}
+
+
+
 }

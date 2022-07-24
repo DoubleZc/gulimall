@@ -4,8 +4,9 @@ package com.zcx.gulimall.controller;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.zcx.common.utils.ExceptionCode;
+import com.zcx.common.utils.HttpUtils;
 import com.zcx.common.utils.R;
-import com.zcx.gulimall.util.HttpUtils;
+
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;

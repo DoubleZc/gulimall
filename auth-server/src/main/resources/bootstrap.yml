@@ -1,0 +1,8 @@
+spring:
+  cloud:
+    nacos:
+      config:
+        extension-configs:
+          - data-id: github.yaml
+            refresh: true
+        server-addr: 192.168.182.128:8848
