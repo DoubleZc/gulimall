@@ -48,6 +48,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
 		checkPhoneUnique(member.getMobile());
 		checkUsernameUnique(member.getUsername());
 
+		member.setNickname(member.getUsername());
 
 		String password="";
 		try {

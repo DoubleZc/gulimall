@@ -58,8 +58,17 @@
 				</li>
 			</ul>
 			<ul class="header_ul_right">
-				<li style="border: 0;"><a href="/static/item/../登录页面\index.html" class="aa">你好，请登录</a></li>
-				<li><a href="/static/item/../注册页面\index.html" style="color: red;">免费注册</a> |</li>
+				<li style="border: 0;">
+					<a th:if="${session.loginUser!=null}">你好，欢迎[[${session.loginUser==null? '' :
+						session.loginUser.nickname}]]</a>
+					<a href="http://auth.gulimall.com" th:if="${session.loginUser==null}">欢迎请登录</a>
+				</li>
+				<li>
+					<a href="http://auth.gulimall.com/reg.html" th:if="${session.loginUser==null}" class="li_2">免费注册</a>
+				</li>
+
+
+
 				<li><a href="/static/item/javascript:;" class="aa">我的订单</a> |</li>
 				<li class="jingdong"><a href="/static/item/javascript:;">我的京东</a><span
 						class="glyphicon glyphicon-menu-down">|</span>
@@ -613,7 +622,7 @@
 							<dd th:each="attr:${sale.attrRSkuIds}">
 								<a
 										th:attr="skus=${attr.skuIds}"
-								   th:class="${(sale.attrValue)==(attr.name)?'skuAttrValue check':'skuAttrValue'}">
+										th:class="${(sale.attrValue)==(attr.name)?'skuAttrValue check':'skuAttrValue'}">
 									[[${attr.name}]]
 								</a>
 							</dd>
@@ -1302,23 +1311,23 @@
     $(".skuAttrValue").click(function () {
 
 
-        let skus=new Array();
-        let curr=$(this).attr("skus").split(",");
+        let skus = new Array();
+        let curr = $(this).attr("skus").split(",");
         skus.push(curr);
 
         $(this).addClass("click");
-	    $(this).parent().parent().find(".skuAttrValue").removeClass("check");
-	    $("a[class='skuAttrValue check']").each(function () {
-		   skus.push( $(this).attr("skus").split(","));
+        $(this).parent().parent().find(".skuAttrValue").removeClass("check");
+        $("a[class='skuAttrValue check']").each(function () {
+            skus.push($(this).attr("skus").split(","));
         })
         $(this).removeClass("click");
         $(this).addClass("check");
 
-        let skuId=skus[0];
+        let skuId = skus[0];
         for (let i = 1; i < skus.length; i++) {
-                skuId = $(skuId).filter(skus[i]);
+            skuId = $(skuId).filter(skus[i]);
         }
-	    location.href="http://item.gulimall.com/"+skuId[0]+".html";
+        location.href = "http://item.gulimall.com/" + skuId[0] + ".html";
     });
 
 

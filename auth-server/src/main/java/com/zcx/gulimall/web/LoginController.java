@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.crypto.spec.PBEKeySpec;
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,7 +135,7 @@ public class LoginController
 
 
 	@PostMapping("/login")
-	public String login(@Validated UserLoginVo vo,RedirectAttributes attributes)
+	public String login(@Validated UserLoginVo vo,RedirectAttributes attributes, HttpSession session)
 	{
 		log.warn("登录:账号{},密码{}",vo.getUsername(),vo.getPassword());
 		R login=new R();
@@ -142,9 +143,8 @@ public class LoginController
 			 login = memberFeignService.login(vo);
 			if (login.getCode()==0)
 			{
+				session.setAttribute(AuthConstant.LOGIN_USER,login.get("data"));
 				return "redirect:http://gulimall.com";
-
-
 			}
 
 		} catch (Exception e) {
@@ -158,6 +158,22 @@ public class LoginController
 
 
 
+	@GetMapping("/login.html")
+	public String loginPage(HttpSession session)
+	{
 
+		Object attribute = session.getAttribute(AuthConstant.LOGIN_USER);
+		if (attribute==null)
+		{
+
+			return "login";
+		}else
+		{
+			return "redirect:http://gulimall.com";
+		}
+
+
+
+	}
 
 }

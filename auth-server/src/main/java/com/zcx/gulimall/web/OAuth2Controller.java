@@ -6,7 +6,8 @@ import com.zcx.common.utils.ExceptionCode;
 import com.zcx.common.utils.HttpUtils;
 import com.zcx.common.utils.R;
 import com.zcx.gulimall.feign.MemberFeignService;
-import com.zcx.gulimall.properties.OAuthProperties;
+
+import com.zcx.gulimall.utils.GithubUtils;
 import com.zcx.gulimall.vo.github.GithubToken;
 import com.zcx.gulimall.vo.github.GithubUser;
 import org.apache.http.HttpResponse;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,58 +27,55 @@ import java.util.Map;
 @RequestMapping("/oauth2.0")
 public class OAuth2Controller
 {
-	@Autowired
-	OAuthProperties properties;
+
 
 	@Autowired
 	MemberFeignService memberFeignService;
+	@Autowired
+	GithubUtils githubUtils;
 
 	@GetMapping("/github/success")
-	public String github(@RequestParam String code) throws Exception
+	public String github(@RequestParam String code, HttpSession session)
 	{
 
-		Map<String,String> heads=new HashMap<>();
-		heads.put("Accept","application/json");
-		Map<String,String> bodys=new HashMap<>();
-
-		bodys.put("code",code);
-		bodys.put("client_secret",properties.getClient_secret());
-		bodys.put("client_id",properties.getClient_id());
 		//第三方请求登录成功
-		HttpResponse tres = HttpUtils.doPost("https://github.com", "/login/oauth/access_token", "post",
-				heads, null, bodys);
 
-		if (tres.getStatusLine().getStatusCode()==200)
-		{
-			String json = EntityUtils.toString(tres.getEntity());
-			GithubToken token = JSON.parseObject(json, GithubToken.class);
-			String access_token = token.getAccess_token();
-
-			Map<String, String> uheads = new HashMap<>();
-			uheads.put("Authorization","token "+access_token);
-			HttpResponse ures = HttpUtils.doGet("https://api.github.com",
-					"/user", "get",
-					uheads, null);
-			if (ures.getStatusLine().getStatusCode()==200)
+		try {
+			HttpResponse tres = githubUtils.getToken(code);
+			if (tres.getStatusLine().getStatusCode()==200)
 			{
-				String ujson = EntityUtils.toString(ures.getEntity());
-				GithubUser user = JSON.parseObject(ujson, GithubUser.class);
-				//登录成功
+				String json = EntityUtils.toString(tres.getEntity());
+				GithubToken token = JSON.parseObject(json, GithubToken.class);
+				String access_token = token.getAccess_token();
 
-				try {
-					R login = memberFeignService.login(user);
-					return "redirect:http://gulimall.com";
-				} catch (Exception e) {
-					e.printStackTrace();
+
+				HttpResponse ures = githubUtils.getUser(access_token);
+				if (ures.getStatusLine().getStatusCode()==200)
+				{
+					String ujson = EntityUtils.toString(ures.getEntity());
+					GithubUser user = JSON.parseObject(ujson, GithubUser.class);
+
+
+					try {
+
+						//登录成功
+						R login = memberFeignService.login(user);
+						session.setAttribute("loginUser",login.get("data"));
+						return "redirect:http://gulimall.com";
+					} catch (Exception e) {
+						return "redirect:http://auth.gulimall.com/login.html";
+					}
 				}
-
-
 			}
-		}
-		//登录失败
-		System.out.println("登录失败");
+		} catch (Exception e) {
 
-		return null;
+			//超时
+
+		}
+
+		//登录失败
+		return "redirect:http://auth.gulimall.com/login.html";
+
 	}
 
 

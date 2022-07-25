@@ -23,6 +23,9 @@ spring:
 #      key-prefix: CACHE_
 
       cache-null-values: true
+#  指定springsession
+  session:
+    store-type: redis
 
 
 
@@ -46,6 +49,5 @@ gulimall:
     maximum-pool-size: 200
     keep-alive-time: 15
     queue-size: 10000
-
 
 
