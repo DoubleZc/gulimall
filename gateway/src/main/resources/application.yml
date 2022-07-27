@@ -61,6 +61,11 @@ spring:
             #nginx代理给网关会丢掉host信息,配置nginx文件设置上host
             - Host=auth.gulimall.com
 
+        - id: nginx_car
+          uri: lb://gulimall-car
+          predicates:
+            #nginx代理给网关会丢掉host信息,配置nginx文件设置上host
+            - Host=car.gulimall.com
 
         - id: nginx_search
           uri: lb://gulimall-search

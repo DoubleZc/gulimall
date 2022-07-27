@@ -5,6 +5,7 @@ import com.zcx.gulimall.product.vo.SkuItemVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -101,5 +102,14 @@ public class SkuSaleAttrValueServiceImpl extends ServiceImpl<SkuSaleAttrValueDao
 		});
 		return skuSaleAttrs;
 	}
-
+	
+	@Override
+	public List<String> getAttrList(Long skuId)
+	{
+		SkuSaleAttrValueDao baseMapper = this.baseMapper;
+		String values= baseMapper.selectAttrList(skuId);
+		return Arrays.asList(values.split(","));
+		
+	}
+	
 }

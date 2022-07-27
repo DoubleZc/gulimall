@@ -1,6 +1,7 @@
 package com.zcx.gulimall.search.web;
 
 
+import com.zcx.common.utils.JWTUntils;
 import com.zcx.gulimall.search.service.MallSearchService;
 import com.zcx.gulimall.search.vo.SearchParam;
 import com.zcx.gulimall.search.vo.SearchRes;
@@ -28,7 +29,9 @@ public class SearchController
 	@GetMapping("/list.html")
 	public String index(SearchParam param, Model model, HttpServletRequest request)
 	{
-
+		
+		
+		
 		String queryString = request.getQueryString();
 		param.set_url(queryString);
 
@@ -39,7 +42,7 @@ public class SearchController
 	}
 
 
-
+ 
 
 
 

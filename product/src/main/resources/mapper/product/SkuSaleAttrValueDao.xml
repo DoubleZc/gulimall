@@ -4,14 +4,14 @@
 <mapper namespace="com.zcx.gulimall.product.dao.SkuSaleAttrValueDao">
 
 	<!-- 可根据自己的需求，是否要使用 -->
-    <resultMap type="com.zcx.gulimall.product.entity.SkuSaleAttrValueEntity" id="skuSaleAttrValueMap">
-        <result property="id" column="id"/>
-        <result property="skuId" column="sku_id"/>
-        <result property="attrId" column="attr_id"/>
-        <result property="attrName" column="attr_name"/>
-        <result property="attrValue" column="attr_value"/>
-        <result property="attrSort" column="attr_sort"/>
-    </resultMap>
+	<resultMap type="com.zcx.gulimall.product.entity.SkuSaleAttrValueEntity" id="skuSaleAttrValueMap">
+		<result property="id" column="id"/>
+		<result property="skuId" column="sku_id"/>
+		<result property="attrId" column="attr_id"/>
+		<result property="attrName" column="attr_name"/>
+		<result property="attrValue" column="attr_value"/>
+		<result property="attrSort" column="attr_sort"/>
+	</resultMap>
 
 
 	<select id="attrRSkuId" resultType="com.zcx.gulimall.product.vo.SkuItemVo$SkuSaleAttr">
@@ -24,19 +24,24 @@
 	</select>
 
 
-
-
-
 	<select id="skuIds" resultType="com.zcx.gulimall.product.vo.SkuItemVo$attrRSkuId">
 		SELECT
 		psa.attr_value AS name,
 		GROUP_CONCAT(psa.sku_id) skuIds
-		from  gulimall_pms.pms_sku_sale_attr_value psa
+		from gulimall_pms.pms_sku_sale_attr_value psa
 		WHERE psa.attr_value in
 		<foreach collection="values" open="(" close=")" separator="," item="value">
 			#{value}
 		</foreach>
 		GROUP BY psa.attr_id, psa.attr_value;
+	</select>
+	<select id="selectAttrList" resultType="java.lang.String">
+		select group_concat(attr_name,':',attr_value)
+		from gulimall_pms.pms_sku_sale_attr_value
+		where sku_id = #{skuId}
+		group by sku_id;
+
+
 	</select>
 
 

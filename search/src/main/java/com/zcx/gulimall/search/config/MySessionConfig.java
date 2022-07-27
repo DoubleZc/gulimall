@@ -1,6 +1,8 @@
 package com.zcx.gulimall.search.config;
 
 
+import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
+import com.zcx.common.utils.MyRedisSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -24,7 +26,7 @@ public class MySessionConfig
 //	不带泛型
 	@Bean
 	public RedisSerializer springSessionDefaultRedisSerializer() {
-		return RedisSerializer.json();
+		return new GenericFastJsonRedisSerializer();
 	}
 
 

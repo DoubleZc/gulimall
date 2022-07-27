@@ -1,8 +1,10 @@
 package com.zcx.gulimall.web;
 
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.EncryptUtils;
 import com.zcx.common.constant.AuthConstant;
+import com.zcx.common.to.MemberTo;
 import com.zcx.common.utils.ExceptionCode;
 import com.zcx.common.utils.R;
 import com.zcx.gulimall.feign.MemberFeignService;
@@ -143,7 +145,8 @@ public class LoginController
 			 login = memberFeignService.login(vo);
 			if (login.getCode()==0)
 			{
-				session.setAttribute(AuthConstant.LOGIN_USER,login.get("data"));
+				MemberTo data = JSON.parseObject(JSON.toJSONString(login.get("data")), MemberTo.class);
+				session.setAttribute(AuthConstant.LOGIN_USER,data);
 				return "redirect:http://gulimall.com";
 			}
 

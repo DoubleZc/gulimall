@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: gulimall-car
+  redis:
+    host: 192.168.182.128
+  session:
+    store-type: redis
+
+
+server:
+  port: 800
+
+gulimall:
+  thread:
+    core-size: 20
+    maximum-pool-size: 200
+    keep-alive-time: 15
+    queue-size: 10000

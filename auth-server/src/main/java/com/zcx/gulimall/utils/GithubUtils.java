@@ -11,7 +11,7 @@ import java.util.Map;
 
 
 
-@ConfigurationProperties(prefix = "gulimall.oauth")
+@ConfigurationProperties(prefix = "gulimall.oauth.github")
 @Component
 @Data
 public class GithubUtils implements OAuthUtils

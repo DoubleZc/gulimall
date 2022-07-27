@@ -39,20 +39,7 @@ public class MemberController
 	@Autowired
 	private CouponFeginService couponFeginService;
 
-
-	@RequestMapping("/test")
-	public R test()
-	{
-
-		MemberEntity memberEntity = new MemberEntity();
-		memberEntity.setNickname("张三");
-
-		R r = couponFeginService.memeberCoupon();
-		Object coupons = r.get("coupons");
-
-		return new R().ok().put("member", memberEntity).put("coupons", coupons);
-	}
-
+	
 
 	/**
 	 * 列表
@@ -103,10 +90,10 @@ public class MemberController
 	@RequestMapping("/login")
 	public R login(@RequestBody MemberEntity member)
 	{
-
+		
 		MemberEntity memberEntity = memberService.login(member);
 		if (memberEntity != null) {
-			return R.ok().put("data", member);
+			return R.ok().put("data", memberEntity);
 		} else {
 			return R.error(ExceptionCode.L_PASSWORD_NOT);
 		}

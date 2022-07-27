@@ -8,6 +8,7 @@
 
 package com.zcx.common.utils;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.http.HttpStatus;
 
 import java.util.HashMap;
@@ -84,4 +85,13 @@ public class R extends HashMap<String, Object> {
 	{
 		return (Integer) super.get("code");
 	}
+	
+	public<T>  T getData(String key,Class<T> tClass)
+	{
+		Object o = get(key);
+		String s = JSON.toJSONString(o);
+		T t = JSON.parseObject(s, tClass);
+		return t;
+	}
+	
 }

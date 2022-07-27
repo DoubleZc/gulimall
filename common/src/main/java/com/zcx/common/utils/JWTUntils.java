@@ -52,11 +52,14 @@ public class JWTUntils
 	public static <T> T ResolveToken(String token, Class<T> tClass)
 	{
 		JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(secure)).build();
+		//验证sign  若不一致抛出SignatureVerificationException
 		DecodedJWT decodedJWT = jwtVerifier.verify(token);
+		
+		
+		
 		Claim data = decodedJWT.getClaim("data");
 		return JSON.parseObject(data.asString(), tClass);
-
-
+		
 	}
 
 
