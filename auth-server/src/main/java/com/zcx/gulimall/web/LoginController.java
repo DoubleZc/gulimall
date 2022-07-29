@@ -148,6 +148,7 @@ public class LoginController
 				MemberTo data = JSON.parseObject(JSON.toJSONString(login.get("data")), MemberTo.class);
 				session.setAttribute(AuthConstant.LOGIN_USER,data);
 				return "redirect:http://gulimall.com";
+
 			}
 
 		} catch (Exception e) {

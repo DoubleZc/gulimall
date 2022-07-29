@@ -25,7 +25,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 
 
 
-
+@EnableCaching
 
 //@MapperScan("com.zcx.gulimall.product.dao")
 @SpringBootApplication

@@ -28,6 +28,13 @@
 			<version>1.2.80</version>
 		</dependency>
 
+		<!--ConfigurationProperties注解，文件提示-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+			<version>2.7.0</version>
+		</dependency>
 
 		<!--jwt-->
 		<dependency>

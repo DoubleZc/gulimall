@@ -16,3 +16,5 @@ gulimall:
     maximum-pool-size: 200
     keep-alive-time: 15
     queue-size: 10000
+
+

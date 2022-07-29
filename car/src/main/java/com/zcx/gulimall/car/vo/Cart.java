@@ -45,6 +45,7 @@ public class Cart
 		if (items!=null&&!items.isEmpty())
 		{
 			for (CartItem item : items) {
+				if (item.isCheck())
 			count =count.add(item.getTotalPrice());
 			}
 			count= count.subtract(reduce);
