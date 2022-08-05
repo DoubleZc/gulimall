@@ -5,10 +5,7 @@ import com.zcx.gulimall.product.vo.SkuItemVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -110,6 +107,27 @@ public class SkuSaleAttrValueServiceImpl extends ServiceImpl<SkuSaleAttrValueDao
 		String values= baseMapper.selectAttrList(skuId);
 		return Arrays.asList(values.split(","));
 		
+	}
+	
+	@Override
+	public Map<Long, List<String>> getAttrMap(List<Long> skuIds)
+	{
+		List<SkuSaleAttrValueEntity> list = list(new LambdaQueryWrapper<SkuSaleAttrValueEntity>().in(SkuSaleAttrValueEntity::getSkuId, skuIds));
+		Map<Long,List<String>>map=new HashMap<>();
+		list.forEach(i->{
+			if (map.containsKey(i.getSkuId()))
+			{
+				List<String> temp = map.get(i.getSkuId());
+				temp.add(i.getAttrName()+":"+i.getAttrValue());
+				
+				
+			}else{
+				List<String> temp=new ArrayList<>();
+				temp.add(i.getAttrName()+":"+i.getAttrValue());
+				map.put(i.getSkuId(),temp);
+			}
+		});
+		return map;
 	}
 	
 }

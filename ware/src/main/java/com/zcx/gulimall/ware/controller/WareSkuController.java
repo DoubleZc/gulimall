@@ -3,9 +3,12 @@ package com.zcx.gulimall.ware.controller;
 import java.util.*;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.zcx.common.comm.CosException;
 import com.zcx.common.constant.WareConstant;
+import com.zcx.common.utils.ExceptionCode;
 import com.zcx.gulimall.ware.vo.FinishDetailVo;
 import com.zcx.gulimall.ware.vo.FinishVo;
+import com.zcx.gulimall.ware.vo.WareSkuLockVo;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +33,31 @@ public class WareSkuController
 	@Autowired
 	private WareSkuService wareSkuService;
 
+	
+	
+	
+	@RequestMapping("/lock")
+	public R lockStock(@RequestBody WareSkuLockVo vo)
+	{
+		
+		try {
+			R r=wareSkuService.lockStock(vo);
+		} catch (CosException.NotStock notStock) {
+			return R.error(ExceptionCode.ORDER_NOT_STOCK).put("data",notStock.getSkuIds());
+		}
+		return R.ok();
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/**
 	 * 列表
 	 */
@@ -55,7 +83,19 @@ public class WareSkuController
 		Integer entity = wareSkuService.getBySkuId(skuId);
 		return R.ok().put("data",entity);
 	}
-
+	
+	
+	
+	@GetMapping("/hasStocks")
+	public R getBySkuIds(@RequestParam List<Long>skuIds)
+	{
+		Map<Long, Integer> map = wareSkuService.getBySkuIds(skuIds);
+		return R.ok().put("data",map);
+	}
+	
+	
+	
+	
 
 	/**
 	 * 信息

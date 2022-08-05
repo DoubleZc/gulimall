@@ -1,9 +1,12 @@
 package com.zcx.gulimall.ware.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zcx.common.comm.CosException;
 import com.zcx.common.utils.PageUtils;
+import com.zcx.common.utils.R;
 import com.zcx.gulimall.ware.entity.PurchaseDetailEntity;
 import com.zcx.gulimall.ware.entity.WareSkuEntity;
+import com.zcx.gulimall.ware.vo.WareSkuLockVo;
 
 import java.util.List;
 import java.util.Map;
@@ -24,5 +27,9 @@ public interface WareSkuService extends IService<WareSkuEntity> {
 	void saveWareSku(List<PurchaseDetailEntity> entity);
 
 	Integer getBySkuId(Long skuId);
+	
+	Map<Long,Integer> getBySkuIds(List<Long> skuIds);
+	
+	R lockStock(WareSkuLockVo vo) throws CosException.NotStock;
 }
 

@@ -1,6 +1,7 @@
 package com.zcx.gulimall.order.config;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.ReturnedMessage;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 
+@Slf4j
 @Configuration
 public class MyRabbitTempleConfig
 {
@@ -30,7 +32,10 @@ public class MyRabbitTempleConfig
 			@Override
 			public void confirm(CorrelationData correlationData, boolean ack, String cause)
 			{
-				System.out.println(correlationData + "_" + ack + "_" + cause);
+				if (cause!=null)
+				{
+					log.error("消息未送到交换机：{}",cause);
+				}
 			}
 		});
 		
@@ -48,7 +53,7 @@ public class MyRabbitTempleConfig
 			@Override
 			public void returnedMessage(ReturnedMessage returned)
 			{
-				System.out.println(returned);
+				log.error("消息未送到队列, 交换机：{},路由键：{},消息：{}",returned.getExchange(),returned.getRoutingKey(),returned.getMessage().toString());
 			}
 		});
 		

@@ -3,6 +3,28 @@ package com.zcx.common.constant;
 public class WareConstant
 {
 
+	public class WareMQ
+	{
+		public static final String EXCHANGE="stock-event-exchange";
+		public static final String DELAY_QUEUE="stock.delay.queue";
+		public static final String RELEASE_QUEUE="stock.release.stock.queue";
+	
+	}
+	
+	public enum RouteKey
+	{
+		TO_DELAY_QUEUE("stock.locked"),
+		TO_RELEASE_QUEUE("stock.release.#"),
+		;
+		public String key;
+		RouteKey(String key)
+		{
+			this.key=key;
+		}
+	}
+	
+	
+	
 	public enum PurchaseStatus
 	{
 		CREATED(0,"新建"),

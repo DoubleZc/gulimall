@@ -5,7 +5,12 @@ spring:
     host: 192.168.182.128
   session:
     store-type: redis
-
+  thymeleaf:
+    mode: HTML
+    servlet:
+      content-type: text/html
+  main:
+    allow-circular-references: true
 
 server:
   port: 800
@@ -16,5 +21,4 @@ gulimall:
     maximum-pool-size: 200
     keep-alive-time: 15
     queue-size: 10000
-
 

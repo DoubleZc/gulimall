@@ -20,7 +20,8 @@ spring:
       simple:
         #手动确认模式
         acknowledge-mode: manual
-
+  main:
+    allow-circular-references: true
 
 
   application:
@@ -30,6 +31,7 @@ spring:
 
   session:
     store-type: redis
+
 
 
 
@@ -56,3 +58,24 @@ gulimall:
       queue-size: 10000
 
 
+
+#seata:
+#  tx-service-group: gulimall-order
+#  service:
+#    vgroup-mapping:
+#      gulimall-order: default
+#  config:
+#    type: nacos
+#    nacos:
+#      namespace: seata
+#      server-addr: 192.168.182.128:8848
+#      username: nacos
+#      password: nacos
+#  registry:
+#    type: nacos
+#    nacos:
+#      server-addr: 192.168.182.128:8848
+#      namespace: public
+#      username: nacos
+#      password: nacos
+#      cluster: default

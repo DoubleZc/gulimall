@@ -20,9 +20,15 @@ public enum ExceptionCode {
     R_PHONE_NOT_UNIQUE(20003,"手机号已使用"),
     R_PASSWORD_NOT_ALLOW(20004,"密码格式错误"),
     //登录错误信息
-    L_PASSWORD_NOT(20010,"账号或密码错误")
+    L_PASSWORD_NOT(20010,"账号或密码错误"),
 
-
+    //订单错误
+    ORDER_SUBMIT_ERROR(30001,"订单验证失败，稍后重试"),
+    //货存不足
+    ORDER_NOT_STOCK(30002,"货存不足"),
+    ORDER_DIFFERENT_PRICE(30003,"两次价格不一致"),
+    
+    
 
 
 

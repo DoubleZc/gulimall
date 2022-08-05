@@ -38,7 +38,8 @@ public class MemberController
 
 	@Autowired
 	private CouponFeginService couponFeginService;
-
+	
+	
 	
 
 	/**

@@ -1,9 +1,17 @@
 package com.zcx.gulimall.ware.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.zcx.common.utils.R;
+import com.zcx.gulimall.ware.feign.MemberFeignService;
+import com.zcx.gulimall.ware.vo.FareVo;
+import com.zcx.gulimall.ware.vo.MemberAddrVo;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.util.Map;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -18,6 +26,10 @@ import com.zcx.gulimall.ware.service.WareInfoService;
 @Service("wareInfoService")
 public class WareInfoServiceImpl extends ServiceImpl<WareInfoDao, WareInfoEntity> implements WareInfoService {
 
+	@Autowired
+	MemberFeignService memberFeignService;
+	
+	
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<WareInfoEntity> page = this.page(
@@ -48,5 +60,28 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoDao, WareInfoEntity
 
 
 	}
-
+	
+	@Override
+	public FareVo getFare(Long addrId)
+	{
+		FareVo fareVo = new FareVo();
+		
+		R info = memberFeignService.info(addrId);
+		MemberAddrVo data = info.getData("data", MemberAddrVo.class);
+		fareVo.setAddress(data);
+		String province = data.getProvince();
+		WareInfoEntity one = getOne(new LambdaQueryWrapper<WareInfoEntity>().eq(WareInfoEntity::getAddress, province));
+		if (one!=null)
+		{
+			fareVo.setFare(new BigDecimal(one.getAreacode()));
+		}else
+		{
+			fareVo.setFare(new  BigDecimal("10"));
+		}
+		return fareVo;
+		
+	
+		
+	}
+	
 }

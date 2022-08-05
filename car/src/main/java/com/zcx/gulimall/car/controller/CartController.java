@@ -2,21 +2,22 @@ package com.zcx.gulimall.car.controller;
 
 
 import com.alibaba.fastjson.JSON;
-import com.zcx.common.constant.AuthConstant;
+import com.zcx.common.to.MemberTo;
 import com.zcx.common.utils.MyThreadMsg;
+import com.zcx.common.utils.R;
 import com.zcx.gulimall.car.service.CartService;
 import com.zcx.gulimall.car.vo.Cart;
 import com.zcx.gulimall.car.vo.CartItem;
-import com.zcx.gulimall.car.vo.UserTo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpSession;
+import java.lang.reflect.Member;
+import java.util.List;
 
 @Controller
 public class CartController
@@ -24,6 +25,14 @@ public class CartController
 	@Autowired
 	CartService cartService;
 	
+	@ResponseBody
+	@GetMapping("/listcart")
+	public List<CartItem> listcart()
+	{
+		MemberTo msg = MyThreadMsg.getMsg(MemberTo.class);
+		List<CartItem> cartById = cartService.getCartById(msg.getId());
+		return cartById;
+	}
 	
 	
 	

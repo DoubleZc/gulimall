@@ -3,6 +3,7 @@ package com.zcx.gulimall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zcx.common.utils.PageUtils;
 import com.zcx.gulimall.product.entity.SkuInfoEntity;
+import com.zcx.gulimall.product.entity.SpuInfoEntity;
 import com.zcx.gulimall.product.vo.SkuItemVo;
 import com.zcx.gulimall.product.vo.SpuSaveVo;
 
@@ -26,7 +27,11 @@ public interface SkuInfoService extends IService<SkuInfoEntity> {
 	List<SkuInfoEntity> getBySpuId(Long spuId);
 
 	SkuItemVo item(Long skuId);
-
-
+	
+	
+	List<SkuInfoEntity> getByIds(List<Long> skuIds);
+	
+	
+	SpuInfoEntity getSpuInfo(Long skuId);
 }
 

@@ -22,7 +22,7 @@ import com.zcx.gulimall.order.dao.OrderItemDao;
 import com.zcx.gulimall.order.entity.OrderItemEntity;
 import com.zcx.gulimall.order.service.OrderItemService;
 
-@RabbitListener(queues = {"hello-java-queue"})
+
 @Slf4j
 @Service("orderItemService")
 public class OrderItemServiceImpl extends ServiceImpl<OrderItemDao, OrderItemEntity> implements OrderItemService {

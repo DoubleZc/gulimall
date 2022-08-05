@@ -9,6 +9,7 @@
 package com.zcx.common.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import org.apache.http.HttpStatus;
 
 import java.util.HashMap;
@@ -89,9 +90,19 @@ public class R extends HashMap<String, Object> {
 	public<T>  T getData(String key,Class<T> tClass)
 	{
 		Object o = get(key);
+		//对象序列化转换异常将对象转换成json纯字符串，再转成对象
 		String s = JSON.toJSONString(o);
-		T t = JSON.parseObject(s, tClass);
-		return t;
+		return JSON.parseObject(s, tClass);
 	}
+	
+	
+	public <T> T getData(String key,TypeReference<T> t)
+	{
+		Object o = get(key);
+		
+		String s = JSON.toJSONString(o);
+		return JSON.parseObject(s, t);
+	}
+	
 	
 }

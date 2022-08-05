@@ -40,5 +40,11 @@ public class WareOrderTaskDetailEntity implements Serializable {
 	 * 工作单id
 	 */
 	private Long taskId;
+	
+	private Long wareId;
+	
+	private  Integer lockStatus;
+	
+	
 
 }

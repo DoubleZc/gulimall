@@ -24,5 +24,6 @@
 		<module>thired</module>
 		<module>search</module>
 		<module>auth-server</module>
+		<module>car</module>
 	</modules>
 </project>

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -86,5 +87,24 @@ public class OrderController {
 
         return R.ok();
     }
+    
+    
+    @RequestMapping("/feign/status")
+    public R getStatus(String orderSn)
+    {
+    
+        OrderEntity one = orderService.getOne(new LambdaQueryWrapper<OrderEntity>().eq(OrderEntity::getOrderSn, orderSn));
+        if (one!=null)
+        {
+            return R.ok().put("data",one.getStatus());
+        }else
+        {
+            return  R.ok().put("data",-1);
+        }
+        
+    
+    
+    }
+    
 
 }

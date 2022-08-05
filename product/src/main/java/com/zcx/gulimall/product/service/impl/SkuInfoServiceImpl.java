@@ -1,9 +1,7 @@
 package com.zcx.gulimall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.zcx.gulimall.product.entity.SkuImagesEntity;
-import com.zcx.gulimall.product.entity.SkuInfoEntity;
-import com.zcx.gulimall.product.entity.SpuInfoDescEntity;
+import com.zcx.gulimall.product.entity.*;
 import com.zcx.gulimall.product.service.*;
 import com.zcx.gulimall.product.vo.SkuItemVo;
 import com.zcx.gulimall.product.vo.SpuSaveVo;
@@ -11,6 +9,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -37,12 +36,18 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 	@Autowired
 	SkuImagesService skuImagesService;
 
+
 	@Autowired
 	SpuInfoDescService spuInfoDescService;
 
 
 	@Autowired
 	SkuSaleAttrValueService skuSaleAttrValueService;
+	
+	@Lazy
+	@Autowired
+	SpuInfoService spuInfoService;
+	
 
 
 	@Autowired
@@ -145,6 +150,21 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 		}
 		return skuItemVo;
 	}
-
-
+	
+	@Override
+	public List<SkuInfoEntity> getByIds(List<Long> skuIds)
+	{
+		return listByIds(skuIds);
+	}
+	
+	@Override
+	public SpuInfoEntity getSpuInfo(Long skuId)
+	{
+		SkuInfoEntity skuInfoEntity = getById(skuId);
+		Long spuId = skuInfoEntity.getSpuId();
+		return spuInfoService.getById(spuId);
+		
+	}
+	
+	
 }

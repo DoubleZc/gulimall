@@ -96,5 +96,15 @@ public class SkuSaleAttrValueController {
     }
     
     
+    @RequestMapping("/attrlist")
+    public Map<Long,List<String>> getAttrMap(@RequestBody  List<Long> skuIds)
+    {
+        
+        
+        return skuSaleAttrValueService.getAttrMap(skuIds);
+    }
+    
+    
+    
 
 }

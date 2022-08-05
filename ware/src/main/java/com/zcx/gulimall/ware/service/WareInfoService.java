@@ -3,6 +3,7 @@ package com.zcx.gulimall.ware.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zcx.common.utils.PageUtils;
 import com.zcx.gulimall.ware.entity.WareInfoEntity;
+import com.zcx.gulimall.ware.vo.FareVo;
 
 import java.util.Map;
 
@@ -18,5 +19,7 @@ public interface WareInfoService extends IService<WareInfoEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
 	PageUtils queryPageBykey(Map<String, Object> params);
+	
+	FareVo getFare(Long addrId);
 }
 

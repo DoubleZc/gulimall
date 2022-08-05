@@ -1,15 +1,12 @@
 package com.zcx.gulimall.member.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.zcx.gulimall.member.entity.MemberReceiveAddressEntity;
 import com.zcx.gulimall.member.service.MemberReceiveAddressService;
@@ -31,6 +28,16 @@ public class MemberReceiveAddressController {
     @Autowired
     private MemberReceiveAddressService memberReceiveAddressService;
 
+    @RequestMapping("/address")
+    public List<MemberReceiveAddressEntity> listAddress(@RequestParam("id") Long id)
+    {
+        return    memberReceiveAddressService.listAddress(id);
+        
+    
+    }
+    
+    
+    
     /**
      * 列表
      */
@@ -51,7 +58,7 @@ public class MemberReceiveAddressController {
     public R info(@PathVariable("id") Long id){
 		MemberReceiveAddressEntity memberReceiveAddress = memberReceiveAddressService.getById(id);
 
-        return R.ok().put("memberReceiveAddress", memberReceiveAddress);
+        return R.ok().put("data", memberReceiveAddress);
     }
 
     /**

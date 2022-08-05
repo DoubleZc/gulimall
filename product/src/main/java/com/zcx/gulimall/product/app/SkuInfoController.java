@@ -1,9 +1,11 @@
 package com.zcx.gulimall.product.app;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.zcx.gulimall.product.entity.SpuInfoEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,6 +50,27 @@ public class SkuInfoController {
 
         return R.ok().put("skuInfo", skuInfo);
     }
+    
+    
+    @RequestMapping("/infos")
+    public R infos(@RequestBody List<Long> skuIds){
+        List<SkuInfoEntity> skuInfos = skuInfoService.getByIds(skuIds);
+        return R.ok().put("skuInfos", skuInfos);
+    }
+    
+    
+    
+    
+    @RequestMapping("/spuInfo")
+    public R getSpuInfo(@RequestBody Long skuId)
+    {
+        SpuInfoEntity spuInfo = skuInfoService.getSpuInfo(skuId);
+        return R.ok().put("data",spuInfo);
+    
+    }
+    
+    
+    
 
     /**
      * 保存
