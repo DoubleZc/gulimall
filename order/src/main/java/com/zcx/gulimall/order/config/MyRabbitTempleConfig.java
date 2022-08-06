@@ -53,6 +53,7 @@ public class MyRabbitTempleConfig
 			@Override
 			public void returnedMessage(ReturnedMessage returned)
 			{
+				
 				log.error("消息未送到队列, 交换机：{},路由键：{},消息：{}",returned.getExchange(),returned.getRoutingKey(),returned.getMessage().toString());
 			}
 		});

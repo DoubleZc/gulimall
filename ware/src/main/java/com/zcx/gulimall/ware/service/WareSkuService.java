@@ -2,6 +2,8 @@ package com.zcx.gulimall.ware.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zcx.common.comm.CosException;
+import com.zcx.common.to.mq.OrderTo;
+import com.zcx.common.to.mq.StockLockTo;
 import com.zcx.common.utils.PageUtils;
 import com.zcx.common.utils.R;
 import com.zcx.gulimall.ware.entity.PurchaseDetailEntity;
@@ -31,5 +33,9 @@ public interface WareSkuService extends IService<WareSkuEntity> {
 	Map<Long,Integer> getBySkuIds(List<Long> skuIds);
 	
 	R lockStock(WareSkuLockVo vo) throws CosException.NotStock;
+	
+	void unLock(StockLockTo to);
+	
+	void unLock(OrderTo to);
 }
 

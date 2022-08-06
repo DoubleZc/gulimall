@@ -25,5 +25,6 @@
 		<module>search</module>
 		<module>auth-server</module>
 		<module>car</module>
+		<module>mq-save</module>
 	</modules>
 </project>

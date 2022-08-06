@@ -19,6 +19,9 @@ public class OrderConstant
 	{
 		TO_DELAY_QUEUE("order.create.order"),
 		TO_RELEASE_QUEUE("order.release.order"),
+		TO_WARE_RELEASE_QUEUE("order.release.ware"),
+		
+		
 		;
 		public String key;
 		RouteKey(String key)

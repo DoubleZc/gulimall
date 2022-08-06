@@ -90,7 +90,7 @@ public class OrderController {
     
     
     @RequestMapping("/feign/status")
-    public R getStatus(String orderSn)
+    public R getStatus(@RequestBody String orderSn)
     {
     
         OrderEntity one = orderService.getOne(new LambdaQueryWrapper<OrderEntity>().eq(OrderEntity::getOrderSn, orderSn));

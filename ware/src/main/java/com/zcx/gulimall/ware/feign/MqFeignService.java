@@ -1,16 +1,15 @@
 package com.zcx.gulimall.ware.feign;
 
+
+import com.zcx.common.to.mq.MqTo;
 import com.zcx.common.utils.R;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@FeignClient("gulimall-order")
-public interface OrderFeignService
+@FeignClient("gulimall-mqsave")
+public interface MqFeignService
 {
-	
-	@RequestMapping("/order/order/feign/status")
-	R getStatus(@RequestBody String orderSn);
-
-
+	@RequestMapping("/send")
+	R sendMessage(@RequestBody MqTo entity);
 }

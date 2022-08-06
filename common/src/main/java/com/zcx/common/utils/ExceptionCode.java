@@ -29,6 +29,12 @@ public enum ExceptionCode {
     ORDER_DIFFERENT_PRICE(30003,"两次价格不一致"),
     
     
+    
+    
+    //消息队列错误
+    CLASS_ERROR(40001,"类型转换异常，类型不一致"),
+    MQ_ERROR(40001,"消息发送异常"),
+    
 
 
 

@@ -1,11 +1,11 @@
 package com.zcx.gulimall.ware.config;
 
-import com.rabbitmq.client.Channel;
 import com.zcx.common.constant.ComConstant;
 import com.zcx.common.constant.WareConstant;
-import com.zcx.common.to.mq.StockLockTo;
-import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.Exchange;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;

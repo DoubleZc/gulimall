@@ -1,52 +1,51 @@
 package com.zcx.gulimall.ware.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.rabbitmq.client.Channel;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zcx.common.comm.CosException;
 import com.zcx.common.constant.OrderConstant;
 import com.zcx.common.constant.WareConstant;
+import com.zcx.common.to.mq.MqTo;
+import com.zcx.common.to.mq.OrderTo;
 import com.zcx.common.to.mq.StockLockTo;
 import com.zcx.common.utils.ExceptionCode;
+import com.zcx.common.utils.PageUtils;
+import com.zcx.common.utils.Query;
 import com.zcx.common.utils.R;
+import com.zcx.gulimall.ware.dao.WareSkuDao;
 import com.zcx.gulimall.ware.entity.PurchaseDetailEntity;
 import com.zcx.gulimall.ware.entity.WareOrderTaskDetailEntity;
 import com.zcx.gulimall.ware.entity.WareOrderTaskEntity;
 import com.zcx.gulimall.ware.entity.WareSkuEntity;
+import com.zcx.gulimall.ware.feign.MqFeignService;
 import com.zcx.gulimall.ware.feign.OrderFeignService;
 import com.zcx.gulimall.ware.feign.ProductFeign;
 import com.zcx.gulimall.ware.service.WareOrderTaskDetailService;
 import com.zcx.gulimall.ware.service.WareOrderTaskService;
+import com.zcx.gulimall.ware.service.WareSkuService;
 import com.zcx.gulimall.ware.vo.OrderItemVo;
 import com.zcx.gulimall.ware.vo.WareSkuLockVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zcx.common.utils.PageUtils;
-import com.zcx.common.utils.Query;
-
-import com.zcx.gulimall.ware.dao.WareSkuDao;
-import com.zcx.gulimall.ware.service.WareSkuService;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Slf4j
-@RabbitListener(queues = {WareConstant.WareMQ.RELEASE_QUEUE})
 @Service("wareSkuService")
 public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> implements WareSkuService
 {
+	@Autowired
+	MqFeignService mqFeignService;
 	
 	@Autowired
 	ProductFeign productFeign;
@@ -58,10 +57,6 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 	@Autowired
 	OrderFeignService orderFeignService;
 	
-	
-	
-	@Autowired
-	RabbitTemplate rabbitTemplate;
 	
 	@Override
 	public PageUtils queryPage(Map<String, Object> params)
@@ -156,10 +151,6 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 	@Transactional
 	public R lockStock(WareSkuLockVo vo) throws CosException.NotStock
 	{
-		WareOrderTaskEntity wareOrderTaskEntity = new WareOrderTaskEntity();
-		wareOrderTaskEntity.setOrderSn(vo.getOrderSn());
-		
-		
 		
 		
 		List<OrderItemVo> itemVo = vo.getItemVo();
@@ -168,23 +159,22 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 		List<OrderItemVo> list = itemVo.stream().filter(
 				i -> stockMap.get(i.getSkuId()) < i.getCount()
 		).collect(Collectors.toList());
+		
+		
 		if (list.isEmpty()) {
-			StockLockTo stockLockTo = new StockLockTo();
-			stockLockTo.setId(wareOrderTaskEntity.getId());
-			List<Long> detailIds=new ArrayList<>();
-			List<WareOrderTaskDetailEntity>entities =new ArrayList<>();
+			List<WareOrderTaskDetailEntity> entities = new ArrayList<>();
 			
 			WareSkuDao baseMapper = this.baseMapper;
 			//货源
 			for (OrderItemVo i : itemVo) {
 				List<WareSkuEntity> ware = list(new LambdaQueryWrapper<WareSkuEntity>().eq(WareSkuEntity::getSkuId, i.getSkuId()));
 				
-				boolean lockFlag=false;
+				boolean lockFlag = false;
 				for (WareSkuEntity w : ware) {
 					Integer integer = baseMapper.lockStock(i.getSkuId(), i.getCount(), w.getWareId());
 					if (integer > 0) {
 						//成功
-						lockFlag=true;
+						lockFlag = true;
 						//发送消息给延迟队列等待回滚
 						WareOrderTaskDetailEntity wareOrderTaskDetailEntity = new WareOrderTaskDetailEntity();
 						wareOrderTaskDetailEntity.setSkuId(i.getSkuId());
@@ -193,25 +183,40 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 						wareOrderTaskDetailEntity.setSkuName(i.getTitle());
 						wareOrderTaskDetailEntity.setLockStatus(1);
 						entities.add(wareOrderTaskDetailEntity);
-						detailIds.add(wareOrderTaskDetailEntity.getId());
 						break;
 					}
 				}
-				if (!lockFlag)
-				{
+				if (!lockFlag) {
 					throw new CosException.NotStock(ExceptionCode.ORDER_NOT_STOCK, Collections.singletonList(i.getSkuId()));
 				}
 			}
 			
+			
 			//库存没有问题 ，库存订单提交
+			WareOrderTaskEntity wareOrderTaskEntity = new WareOrderTaskEntity();
+			wareOrderTaskEntity.setOrderSn(vo.getOrderSn());
+			wareOrderTaskEntity.setTaskStatus(OrderConstant.OrderStatusEnum.CREATE_NEW.getCode());
 			wareOrderTaskService.save(wareOrderTaskEntity);
+			
+			entities.forEach(i -> {
+				i.setTaskId(wareOrderTaskEntity.getId());
+			});
 			wareOrderTaskDetailService.saveBatch(entities);
 			
+			
+			StockLockTo stockLockTo = new StockLockTo();
+			stockLockTo.setId(wareOrderTaskEntity.getId());
+			List<Long> detailIds = entities.stream().map(WareOrderTaskDetailEntity::getId).collect(Collectors.toList());
 			stockLockTo.setDetailIds(detailIds);
-			rabbitTemplate.convertAndSend(WareConstant.WareMQ.EXCHANGE,WareConstant.RouteKey.TO_DELAY_QUEUE.key,stockLockTo);
-		}
-		else
-		{
+			
+			try {
+				mqFeignService.sendMessage(new MqTo(WareConstant.WareMQ.EXCHANGE, WareConstant.RouteKey.TO_DELAY_QUEUE.key, stockLockTo));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			
+		} else {
 			List<Long> collect = list.stream().map(OrderItemVo::getSkuId).collect(Collectors.toList());
 			throw new CosException.NotStock(ExceptionCode.ORDER_NOT_STOCK, collect);
 		}
@@ -220,52 +225,45 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 	}
 	
 	
-	
-	@RabbitHandler
-	public void  unLock(Message message, Channel channel,StockLockTo to)
+	@Transactional
+	@Override
+	public void unLock(StockLockTo to)
 	{
-		WareSkuDao baseMapper = this.baseMapper;
+		WareOrderTaskEntity wareOrderTaskEntity = wareOrderTaskService.getById(to.getId());
+		if (wareOrderTaskEntity == null) return;
+		
 		List<Long> detailIds = to.getDetailIds();
 		List<WareOrderTaskDetailEntity> list = wareOrderTaskDetailService.listByIds(to.getDetailIds());
+		if (list==null||list.isEmpty())return;
 		
-		
-		WareOrderTaskEntity wareOrderTaskEntity = wareOrderTaskService.getById(to.getId());
 		String orderSn = wareOrderTaskEntity.getOrderSn();
-		R status=null;
-		try {
-			status = orderFeignService.getStatus(orderSn);
-		} catch (Exception e) {
-			log.error("远程调用异常orderFeignService.getStatus");
-		}
-		
-		Integer data = (Integer)status.get("data");
-		
-		if (data.equals(OrderConstant.OrderStatusEnum.CANCLED.getCode())||data==-1)
-		{
-			//减库存
-			list.forEach(baseMapper::updateUnlock);
+		R status = orderFeignService.getStatus(orderSn);
+		Integer data = (Integer) status.get("data");
+		if (data == -1) {
 			//删库存订单
 			wareOrderTaskDetailService.removeBatchByIds(detailIds);
 			wareOrderTaskService.removeById(to.getId());
-			
-			try {
-				channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}else
-		{
-			
-			try {
-				channel.basicReject(message.getMessageProperties().getDeliveryTag(),true);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
+			//减库存
+			list.forEach(baseMapper::updateUnlock);
 		}
+	}
+	
+	@Transactional
+	@Override
+	public void unLock(OrderTo to)
+	{
+		
+		WareOrderTaskEntity one = wareOrderTaskService.getOne(new LambdaQueryWrapper<WareOrderTaskEntity>().eq(WareOrderTaskEntity::getOrderSn, to.getOrderSn()));
+		if (one.getTaskStatus().equals(OrderConstant.OrderStatusEnum.CANCLED.getCode()))
+		{
+			return;
+		}
+		one.setTaskStatus(OrderConstant.OrderStatusEnum.CANCLED.getCode());
+		wareOrderTaskService.updateById(one);
 		
 		
-		
+		List<WareOrderTaskDetailEntity> list = wareOrderTaskDetailService.list(new LambdaQueryWrapper<WareOrderTaskDetailEntity>().eq(WareOrderTaskDetailEntity::getTaskId, one.getId()));
+		list.forEach(baseMapper::updateUnlock);
 	}
 	
 	

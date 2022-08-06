@@ -24,5 +24,7 @@ public interface OrderService extends IService<OrderEntity> {
 	OrderConfirmVo confirm();
 	
 	R submitOrder(OrderSubmitVo vo) throws CosException.NotStock;
+	
+	boolean closeOrder(OrderEntity orderEntity);
 }
 

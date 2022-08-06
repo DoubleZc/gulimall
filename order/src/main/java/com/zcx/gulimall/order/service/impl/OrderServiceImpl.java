@@ -8,17 +8,17 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zcx.common.comm.CosException;
 import com.zcx.common.constant.OrderConstant;
 import com.zcx.common.to.MemberTo;
+import com.zcx.common.to.mq.MqTo;
+import com.zcx.common.to.mq.OrderTo;
 import com.zcx.common.utils.*;
 import com.zcx.gulimall.order.dao.OrderDao;
 import com.zcx.gulimall.order.entity.OrderEntity;
 import com.zcx.gulimall.order.entity.OrderItemEntity;
-import com.zcx.gulimall.order.feign.CartFeignService;
-import com.zcx.gulimall.order.feign.MemberFeignService;
-import com.zcx.gulimall.order.feign.ProductFeignService;
-import com.zcx.gulimall.order.feign.WareFeignService;
+import com.zcx.gulimall.order.feign.*;
 import com.zcx.gulimall.order.service.OrderItemService;
 import com.zcx.gulimall.order.service.OrderService;
 import com.zcx.gulimall.order.vo.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -42,6 +42,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 	@Autowired
 	MemberFeignService memberFeignService;
 	
+	
 	@Autowired
 	CartFeignService cartFeignService;
 	@Autowired
@@ -59,6 +60,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 	
 	@Autowired
 	ThreadPoolExecutor executor;
+	
+	@Autowired
+	MqFeignService mqFeignService;
 	
 	
 	@Override
@@ -162,8 +166,20 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 				R r = wareFeignService.lockStock(wareSkuLockTo);
 				if (r.getCode()==0)
 				{
+					//订单创建成功
 					r.put("orderSn",orderCreatTo.getOrderEntity().getOrderSn());
 					r.put("price",payAmount);
+					
+					OrderTo orderTo = new OrderTo();
+					BeanUtils.copyProperties(orderCreatTo.getOrderEntity(),orderTo);
+					
+					try {
+						mqFeignService.sendMessage(new MqTo(OrderConstant.OrderMQ.EXCHANGE,OrderConstant.RouteKey.TO_DELAY_QUEUE.key,orderTo));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					
 					return r;
 					
 				}else
@@ -181,6 +197,48 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 		
 		
 	}
+	
+	
+	
+	
+	@Override
+	public boolean closeOrder(OrderEntity orderEntity)
+	{
+		try {
+			Long id = orderEntity.getId();
+			OrderEntity now = getById(id);
+			Integer status = now.getStatus();
+			if (status.equals(OrderConstant.OrderStatusEnum.CREATE_NEW.getCode()))
+			{
+				OrderEntity change = new OrderEntity();
+				change.setId(now.getId());
+				change.setStatus(OrderConstant.OrderStatusEnum.CANCLED.getCode());
+				updateById(change);
+				
+				
+				OrderTo orderTo = new OrderTo();
+				BeanUtils.copyProperties(orderEntity,orderTo);
+				
+				
+				try {
+					mqFeignService.sendMessage(new MqTo(OrderConstant.OrderMQ.EXCHANGE, OrderConstant.RouteKey.TO_WARE_RELEASE_QUEUE.key, orderTo));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				
+			}
+			return true;
+		} catch (Exception e) {
+			return  false;
+		}
+	}
+	
+	
+	
+	
+	
+	
 	
 	
 	private void saveOrder(OrderCreatTo orderCreatTo)

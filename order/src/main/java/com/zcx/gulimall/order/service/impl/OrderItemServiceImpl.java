@@ -1,26 +1,17 @@
 package com.zcx.gulimall.order.service.impl;
 
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
-import com.zcx.gulimall.order.entity.OrderReturnApplyEntity;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageProperties;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zcx.common.utils.PageUtils;
 import com.zcx.common.utils.Query;
-
 import com.zcx.gulimall.order.dao.OrderItemDao;
 import com.zcx.gulimall.order.entity.OrderItemEntity;
 import com.zcx.gulimall.order.service.OrderItemService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 
 @Slf4j
@@ -37,7 +28,7 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemDao, OrderItemEnt
         return new PageUtils(page);
     }
 
-    @RabbitHandler
+   /* @RabbitHandler
     public void receiveMessage(Message msg, String orderReturnApplyEntity, Channel channel) throws InterruptedException
     {
         long deliveryTag = msg.getMessageProperties().getDeliveryTag();
@@ -68,7 +59,7 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemDao, OrderItemEnt
         log.info("消息：{}",orderReturnApplyEntity);
         
     }
-    
+    */
     
     
 }

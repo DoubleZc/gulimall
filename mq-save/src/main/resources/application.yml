@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.182.128:3306/gulimall_mq?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+
+  rabbitmq:
+    host: 192.168.182.128
+    port: 5672
+    virtual-host: /
+    listener:
+      simple:
+        acknowledge-mode: manual
+    publisher-returns: true
+    publisher-confirm-type: correlated
+
+
+
+  application:
+    name: gulimall-mqsave
+
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+
+server:
+  port: 900
+
