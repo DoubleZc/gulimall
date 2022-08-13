@@ -81,6 +81,7 @@ public class IndexController
 	{
 		RReadWriteLock readWriteLock = redissonClient.getReadWriteLock("my-mylock");
 		RLock rLock = readWriteLock.readLock();
+		
 		try{
 			rLock.lock();
 			System.out.println("读加锁");
@@ -126,6 +127,8 @@ public class IndexController
 	public String park() throws InterruptedException
 	{
 		RSemaphore park = redissonClient.getSemaphore("park");
+		park.trySetPermits(1);
+		
 		park.acquire();
 		return "a";
 	}
@@ -137,6 +140,7 @@ public class IndexController
 	{
 		RSemaphore park = redissonClient.getSemaphore("park");
 		park.release();
+		
 	    return "a";
 	}
 
@@ -146,7 +150,8 @@ public class IndexController
 	public String CountDownLatch() throws InterruptedException
 	{
 		RCountDownLatch latch = redissonClient.getCountDownLatch("anyCountDownLatch");
-		latch.trySetCount(1);
+		latch.trySetCount(10);
+		latch.countDown();
 		latch.await();
 
 		// 在其他线程或其他JVM里

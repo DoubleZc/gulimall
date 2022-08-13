@@ -1,11 +1,14 @@
 package com.zcx.gulimall.order.web;
 
 
+import com.alipay.api.AlipayApiException;
 import com.zcx.common.comm.CosException;
 import com.zcx.common.utils.R;
+import com.zcx.gulimall.order.config.AlipayTemplate;
 import com.zcx.gulimall.order.service.OrderService;
 import com.zcx.gulimall.order.vo.OrderConfirmVo;
 import com.zcx.gulimall.order.vo.OrderSubmitVo;
+import com.zcx.gulimall.order.vo.PayVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,7 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.bind.annotation.ResponseBody;
 
 
 @Slf4j
@@ -22,6 +25,10 @@ public class OrderWebController
 {
 	@Autowired
 	OrderService orderService;
+	
+	@Autowired
+	AlipayTemplate alipayTemplate;
+	
 	
 	@GetMapping("/toTrade")
 	public String toConfirm(Model model)
@@ -60,4 +67,17 @@ public class OrderWebController
 		}
 		
 	}
+	
+	@GetMapping(value = "/payOrder",produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String payOrder(@RequestParam  String orderSn) throws AlipayApiException
+	{
+		PayVo payVo=orderService.getOrderPay(orderSn);
+		return alipayTemplate.pay(payVo);
+		
+	}
+	
+	
+	
+	
 }

@@ -25,7 +25,9 @@ public class MyScheduling
 	@Scheduled(cron = "0 0/30 * * * ? ")
 	public void updateMq(){
 		log.info("自动扫描数据库");
-		List<MqEntity> list = mqService.list(new LambdaQueryWrapper<MqEntity>().ne(MqEntity::getMessageStatus,MqStatus.SUCCESS.getCode()));
+		List<MqEntity> list = mqService.list(new LambdaQueryWrapper<MqEntity>().ne(MqEntity::getMessageStatus,MqStatus.SUCCESS.getCode()).and(i->i.ne(
+				MqEntity::getMessageStatus,MqStatus.RECEIVE.getCode()
+		)));
 		if (list.isEmpty())
 			return;
 		list.forEach(i-> mqService.send(i));

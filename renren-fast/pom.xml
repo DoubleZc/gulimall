@@ -246,10 +246,19 @@
 			<version>${lombok.version}</version>
 		</dependency>
 
+
+		<!--注册中心-->
 		<dependency>
-			<groupId>com.gulimall</groupId>
-			<artifactId>common</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<groupId>com.alibaba.cloud</groupId>
+			<artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+			<version>2021.1</version>
+			<!--去除ribbon-->
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 	</dependencies>

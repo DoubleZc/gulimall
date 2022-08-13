@@ -18,6 +18,16 @@ spring:
           filters:
               - RewritePath=/api(?<segment>/?.*),$\{segment}
 
+
+        - id: coupon
+          uri: lb://gulimall-coupon
+          predicates:
+            - Path=/api/coupon/**
+          filters:
+            - RewritePath=/api(?<segment>/?.*),$\{segment}
+
+
+
         - id: ware
           uri: lb://gulimall-ware
           predicates:
@@ -75,6 +85,21 @@ spring:
             - Host=order.gulimall.com
 
 
+        - id: nginx_member
+          uri: lb://gulimall-member
+          predicates:
+            #nginx代理给网关会丢掉host信息,配置nginx文件设置上host
+            - Host=member.gulimall.com
+
+
+        - id: nginx_seckill
+          uri: lb://gulimall-seckill
+          predicates:
+            #nginx代理给网关会丢掉host信息,配置nginx文件设置上host
+            - Host=seckill.gulimall.com
+
+
+
         - id: nginx_search
           uri: lb://gulimall-search
           predicates:
@@ -94,7 +119,7 @@ spring:
 
   application:
     name: gulimall-gateway
+
+
 server:
   port: 88
-
-

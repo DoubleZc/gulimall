@@ -11,13 +11,16 @@ public class OrderConstant
 		public static final String EXCHANGE="order-event-exchange";
 		public static final String DELAY_QUEUE="order.delay.queue";
 		public static final String RELEASE_QUEUE="order.release.order.queue";
+		public static final String SECKILL_QUEUE="order.seckill.order.queue";
 	}
 	
 	
 	
 	public enum RouteKey
 	{
+		
 		TO_DELAY_QUEUE("order.create.order"),
+		TO_SECKILL_QUEUE("order.seckill.order"),
 		TO_RELEASE_QUEUE("order.release.order"),
 		TO_WARE_RELEASE_QUEUE("order.release.ware"),
 		

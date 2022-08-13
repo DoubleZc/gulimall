@@ -31,6 +31,8 @@ spring:
 
   session:
     store-type: redis
+  # mvc的date类型转换格式
+
 
 
 
@@ -56,6 +58,7 @@ gulimall:
       maximum-pool-size: 200
       keep-alive-time: 15
       queue-size: 10000
+
 
 
 

@@ -33,11 +33,11 @@ public class InitRabbitTemplate
 			{
 				if (!ack)
 				{
-					log.warn("消息发送未到Exchange");
+					log.warn("消息{}失败：Exchange",correlationData.getId());
 					mqService.updateStatus(MqStatus.TO_EXCHANGE_ERROR,correlationData.getId());
 				}else
 				{
-					log.info("消息已送达Exchange");
+					log.info("消息{}已送达",correlationData.getId());
 					mqService.updateStatus(MqStatus.SUCCESS,correlationData.getId());
 				}
 			}
@@ -51,7 +51,7 @@ public class InitRabbitTemplate
 			@Override
 			public void returnedMessage(ReturnedMessage returned)
 			{
-				log.warn("消息未送达Queue");
+				log.warn("消息{}失败：Queue",returned.getMessage().getMessageProperties().getMessageId());
 				mqService.updateStatus(MqStatus.TO_QUEUE_ERROR,returned.getMessage().getMessageProperties().getMessageId());
 			}
 		});

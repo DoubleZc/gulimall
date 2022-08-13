@@ -1,12 +1,15 @@
 package com.zcx.gulimall.order.service.impl;
 
 import com.alibaba.fastjson.TypeReference;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zcx.common.comm.CosException;
 import com.zcx.common.constant.OrderConstant;
+import com.zcx.common.to.mq.SeckillTo;
+import com.zcx.gulimall.order.vo.AlipayParam;
 import com.zcx.common.to.MemberTo;
 import com.zcx.common.to.mq.MqTo;
 import com.zcx.common.to.mq.OrderTo;
@@ -14,10 +17,13 @@ import com.zcx.common.utils.*;
 import com.zcx.gulimall.order.dao.OrderDao;
 import com.zcx.gulimall.order.entity.OrderEntity;
 import com.zcx.gulimall.order.entity.OrderItemEntity;
+import com.zcx.gulimall.order.entity.PaymentInfoEntity;
 import com.zcx.gulimall.order.feign.*;
 import com.zcx.gulimall.order.service.OrderItemService;
 import com.zcx.gulimall.order.service.OrderService;
+import com.zcx.gulimall.order.service.PaymentInfoService;
 import com.zcx.gulimall.order.vo.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -28,6 +34,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -36,6 +43,7 @@ import java.util.stream.Collectors;
 
 
 @Service("orderService")
+@Slf4j
 public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> implements OrderService
 {
 	
@@ -63,6 +71,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 	
 	@Autowired
 	MqFeignService mqFeignService;
+	
+	@Autowired
+	PaymentInfoService paymentInfoService;
 	
 	
 	@Override
@@ -154,6 +165,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 				//锁库存
 				WareSkuLockTo wareSkuLockTo = new WareSkuLockTo();
 				wareSkuLockTo.setOrderSn(orderCreatTo.getOrderEntity().getOrderSn());
+				
 				List<OrderItemVo> collect = orderCreatTo.getItems().stream().map(i -> {
 					OrderItemVo orderItemVo = new OrderItemVo();
 					orderItemVo.setSkuId(i.getSkuId());
@@ -175,13 +187,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 					
 					try {
 						mqFeignService.sendMessage(new MqTo(OrderConstant.OrderMQ.EXCHANGE,OrderConstant.RouteKey.TO_DELAY_QUEUE.key,orderTo));
+						log.info("订单创建成功,发送消息到MQ");
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					
-					
 					return r;
-					
 				}else
 				{
 					throw new CosException.NotStock(ExceptionCode.ORDER_NOT_STOCK,r.getData("data",new TypeReference<List<Long>>(){}));
@@ -219,9 +229,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 				OrderTo orderTo = new OrderTo();
 				BeanUtils.copyProperties(orderEntity,orderTo);
 				
-				
 				try {
 					mqFeignService.sendMessage(new MqTo(OrderConstant.OrderMQ.EXCHANGE, OrderConstant.RouteKey.TO_WARE_RELEASE_QUEUE.key, orderTo));
+					log.info("关闭订单,解锁库存消息到MQ");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -234,11 +244,109 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 		}
 	}
 	
+	@Override
+	public PayVo getOrderPay(String orderSn)
+	{
+		
+		PayVo payVo = new PayVo();
+		OrderEntity one = getByOrderSn(orderSn);
+		
+		//订单号
+		payVo.setOut_trade_no(orderSn);
+		//付款金额
+		BigDecimal bigDecimal = one.getPayAmount().setScale(2, RoundingMode.UP);
+		payVo.setTotal_amount(bigDecimal.toString());
+		// 订单名称
+		payVo.setSubject("谷粒商城");
+		//商品描述
+		
+		
+		return payVo;
+	}
+	
+	@Override
+	public OrderEntity getByOrderSn(String orderSn)
+	{
+		return getOne(new LambdaQueryWrapper<OrderEntity>().eq(OrderEntity::getOrderSn, orderSn));
+	}
+	
+	@Override
+	public PageUtils listItem(Map<String, Object> params)
+	{
+		MemberTo msg = MyThreadMsg.getMsg(MemberTo.class);
+		
+		IPage<OrderEntity> page = this.page(
+				new Query<OrderEntity>().getPage(params),
+				new QueryWrapper<OrderEntity>().eq("member_id",msg.getId()).orderByDesc("order_sn")
+		);
+		page.getRecords().forEach(i->{
+			List<OrderItemEntity> list = orderItemService.list(new LambdaQueryWrapper<OrderItemEntity>()
+					.eq(OrderItemEntity::getOrderSn, i.getOrderSn()));
+			i.setItems(list);
+		});
+		
+		
+		return new PageUtils(page);
 	
 	
+	}
 	
+	@Override
+	public String handlePayResult(AlipayParam param)
+	{
+		
+		PaymentInfoEntity paymentInfoEntity = new PaymentInfoEntity();
+		paymentInfoEntity.setAlipayTradeNo(param.getTrade_no());
+		paymentInfoEntity.setOrderSn(param.getOut_trade_no());
+		paymentInfoEntity.setPaymentStatus(param.getTrade_status());
+		paymentInfoEntity.setCallbackTime(param.getNotify_time());
+		paymentInfoService.save(paymentInfoEntity);
+		
+		if (param.getTrade_status().equals("TRADE_SUCCESS")||param.getTrade_status().equals("TRADE_FINISHED"))
+		{
+			String orderSn = param.getOut_trade_no();
+			OrderEntity orderEntity = new OrderEntity();
+			orderEntity.setStatus(OrderConstant.OrderStatusEnum.PAYED.getCode());
+			update(orderEntity,new LambdaQueryWrapper<OrderEntity>().eq(OrderEntity::getOrderSn,orderSn));
+		}
+		return "success";
+		
+	}
 	
+	@Override
+	public String getAlipaySn(String orderSn)
+	{
+		PaymentInfoEntity one = paymentInfoService.getOne(new LambdaQueryWrapper<PaymentInfoEntity>().eq(PaymentInfoEntity::getOrderSn, orderSn));
+		return one.getAlipayTradeNo();
+		
+	}
 	
+	@Override
+	public void createSeckillOrder(SeckillTo to)
+	{
+		OrderEntity orderEntity = new OrderEntity();
+		
+		orderEntity.setOrderSn(to.getOrderSn());
+		orderEntity.setMemberId(to.getMemberId());
+		orderEntity.setPayAmount(to.getSeckillPrice().multiply(BigDecimal.valueOf(to.getNum())));
+		orderEntity.setStatus(OrderConstant.OrderStatusEnum.CREATE_NEW.getCode());
+		save(orderEntity);
+		
+		
+		OrderItemEntity orderItemEntity = new OrderItemEntity();
+		orderItemEntity.setOrderSn(to.getOrderSn());
+		orderItemEntity.setSkuId(to.getSkuId());
+		orderItemEntity.setSkuQuantity(to.getNum());
+		orderItemService.save(orderItemEntity);
+		
+		
+		
+		
+		
+		
+		
+		
+	}
 	
 	
 	private void saveOrder(OrderCreatTo orderCreatTo)

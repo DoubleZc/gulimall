@@ -5,8 +5,18 @@ import com.zcx.common.utils.ExceptionCode;
 import java.util.List;
 import java.util.Map;
 
-public class CosException
+public class CosException  extends Exception
 {
+	ExceptionCode code;
+	public CosException(ExceptionCode code)
+	{
+		this.code=code;
+	}
+	public ExceptionCode getCode()
+	{
+		return code;
+	}
+	
 	
 	public static class CheckException extends Exception
 	{

@@ -1,8 +1,12 @@
 package com.zcx.gulimall.product.service.impl;
 
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.zcx.common.utils.R;
 import com.zcx.gulimall.product.entity.*;
+import com.zcx.gulimall.product.feign.SeckillFeignService;
 import com.zcx.gulimall.product.service.*;
+import com.zcx.gulimall.product.vo.SeckillVo;
 import com.zcx.gulimall.product.vo.SkuItemVo;
 import com.zcx.gulimall.product.vo.SpuSaveVo;
 import org.apache.logging.log4j.util.Strings;
@@ -52,6 +56,10 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
 	@Autowired
 	ProductAttrValueService productAttrValueService;
+	
+	
+	@Autowired
+	SeckillFeignService seckillFeignService;
 
 
 	@Autowired
@@ -108,12 +116,24 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 	public SkuItemVo item(Long skuId)
 	{
 		SkuItemVo skuItemVo = new SkuItemVo();
+		//获取秒杀信息
+		
+		CompletableFuture<Void> future5 = CompletableFuture.runAsync(() -> {
+			R r = seckillFeignService.getseckillInfo(skuId);
+			if (r.getCode() == 0) {
+				List<SeckillVo> data = r.getData("data", new TypeReference<List<SeckillVo>>()
+				{
+				});
+				skuItemVo.setSeckillVos(data);
+			}
+		}, threadPoolExecutor);
+		
 		CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
 			//获取图片信息
 			List<SkuImagesEntity> list = skuImagesService.listBySkuId(skuId);
 			skuItemVo.setImages(list);
 		}, threadPoolExecutor);
-
+		
 		CompletableFuture<SkuInfoEntity> future = CompletableFuture.supplyAsync(() -> {
 			//获取基本信息
 			SkuInfoEntity infoEntity = getById(skuId);
@@ -141,8 +161,12 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 			List<SkuItemVo.SkuSaleAttr> saleAttrs = skuSaleAttrValueService.listBySkuId(skuSaleAttrs, skuId);
 			skuItemVo.setSkuSaleAttrs(saleAttrs);
 		});
-		CompletableFuture<Void> futureAll = CompletableFuture.allOf(future1,future2,future3,future4);
+		CompletableFuture<Void> futureAll = CompletableFuture.allOf(future1,future2,future3,future4,future5);
 
+		
+		
+		
+		
 		try {
 			futureAll.get();
 		} catch (Exception e) {

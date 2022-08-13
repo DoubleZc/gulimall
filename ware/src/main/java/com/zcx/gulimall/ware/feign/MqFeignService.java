@@ -12,4 +12,7 @@ public interface MqFeignService
 {
 	@RequestMapping("/send")
 	R sendMessage(@RequestBody MqTo entity);
+	@RequestMapping("/success")
+	R success(@RequestBody String id);
+	
 }

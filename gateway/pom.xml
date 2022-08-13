@@ -29,11 +29,14 @@
 		</dependency>
 
 
+
+
 <!--		没有路由到nacos指定服务器，加这个依赖-->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-loadbalancer</artifactId>
 		</dependency>
+
 
 		<dependency>
 			<groupId>com.gulimall</groupId>

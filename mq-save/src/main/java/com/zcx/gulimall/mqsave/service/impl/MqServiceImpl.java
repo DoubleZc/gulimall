@@ -29,8 +29,13 @@ public class MqServiceImpl extends ServiceImpl<MqMapper, MqEntity> implements Mq
 	@Override
 	public R sendAndSave(MqEntity entity)
 	{
+		
+		
 		entity.setMessageStatus(MqStatus.DEFAULTS.getCode());
 		save(entity);
+		
+		
+		
 		R send=null;
 		int time=0;
 		while (time<10){
@@ -52,11 +57,24 @@ public class MqServiceImpl extends ServiceImpl<MqMapper, MqEntity> implements Mq
 	@Override
 	public void updateStatus(MqStatus status, String id)
 	{
+		
 		MqEntity mqEntity = new MqEntity();
 		mqEntity.setMessageStatus(status.getCode());
 		update(mqEntity,new LambdaQueryWrapper<MqEntity>().eq(MqEntity::getMessageId,Long.valueOf(id)).and(
 				mqEntityLambdaQueryWrapper ->mqEntityLambdaQueryWrapper.eq(MqEntity::getMessageStatus,MqStatus.DEFAULTS.getCode()) ));
 	}
+	
+	
+	@Override
+	public void successReceive(String id)
+	{
+		MqEntity mqEntity = new MqEntity();
+		mqEntity.setMessageStatus(MqStatus.RECEIVE.getCode());
+		update(mqEntity,new LambdaQueryWrapper<MqEntity>().eq(MqEntity::getMessageId,Long.valueOf(id)).and(
+				mqEntityLambdaQueryWrapper ->mqEntityLambdaQueryWrapper.eq(MqEntity::getMessageStatus,MqStatus.SUCCESS.getCode()) ));
+	}
+	
+	
 	
 	@Override
 	public R send(MqEntity entity)
@@ -74,6 +92,7 @@ public class MqServiceImpl extends ServiceImpl<MqMapper, MqEntity> implements Mq
 			};
 			
 			rabbitTemplate.convertAndSend(entity.getToExchange(), entity.getRouteKey(), JSON.parseObject(entity.getContent(), aClass),messagePostProcessor,new CorrelationData(entity.getMessageId().toString()));
+			
 		} catch (AmqpException e) {
 			//发送消息错误
 			log.warn("消息发送异常"+entity.getMessageId());

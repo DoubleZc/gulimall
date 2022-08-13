@@ -2,6 +2,7 @@ package com.zcx.gulimall.coupon.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zcx.common.utils.PageUtils;
+import com.zcx.common.utils.R;
 import com.zcx.gulimall.coupon.entity.SeckillSessionEntity;
 
 import java.util.Map;
@@ -16,5 +17,8 @@ import java.util.Map;
 public interface SeckillSessionService extends IService<SeckillSessionEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+	
+	R getSkuLate3Dys();
+	
 }
 

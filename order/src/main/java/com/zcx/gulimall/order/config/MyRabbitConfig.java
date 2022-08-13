@@ -50,6 +50,14 @@ public class MyRabbitConfig
 	}
 	
 	
+	
+	@Bean
+	public Queue orderSeckillQueue()
+	{
+		return new Queue(OrderConstant.OrderMQ.SECKILL_QUEUE, true, false, false);
+	}
+	
+	
 	@Bean
 	public Exchange orderEventExchange()
 	{
@@ -88,4 +96,15 @@ public class MyRabbitConfig
 	}
 	
 	
+	
+	@Bean
+	public Binding orderSeckillBinding()
+	{
+		return new Binding(OrderConstant.OrderMQ.SECKILL_QUEUE,
+				Binding.DestinationType.QUEUE,
+				OrderConstant.OrderMQ.EXCHANGE,
+				OrderConstant.RouteKey.TO_SECKILL_QUEUE.key, null);
+	}
+	
+
 }

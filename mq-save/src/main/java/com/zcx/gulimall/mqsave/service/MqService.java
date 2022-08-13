@@ -14,5 +14,7 @@ public interface MqService extends IService<MqEntity>
 	
 	void updateStatus(MqStatus status, String id);
 	
+	void successReceive(String id);
+	
 	com.zcx.common.utils.R send(MqEntity entity);
 }

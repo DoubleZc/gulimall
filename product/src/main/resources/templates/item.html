@@ -526,8 +526,15 @@
 							<span>￥</span>
 							<span th:text="${#numbers.formatDecimal(item.info.price,3,2)}">4499.00</span>
 						</li>
-						<li>
-							预约享资格
+						<li style="color: red" th:if="${!#lists.isEmpty(item.seckillVos)}" >
+								<span th:if="${!#strings.isEmpty(item.seckillVos[0].uuid)}">
+									秒杀价：[[${#numbers.formatDecimal(item.seckillVos[0].seckillPrice,1,2)}]]
+								--------
+								结束时间:[[${#dates.format(new java.util.Date(item.seckillVos[0].endTime),"yyyy-MM-dd HH:mm:ss")}]]
+								</span>
+								<span th:if="${#strings.isEmpty(item.seckillVos[0].uuid)}">
+									下次秒杀开始于：[[${#dates.format(new java.util.Date(item.seckillVos[0].startTime),"yyyy-MM-dd HH:mm:ss")}]]
+								</span>
 						</li>
 						<li>
 							<a href="/static/item/">
@@ -648,7 +655,12 @@
 
 						</div>
 					</div>
-					<div class="box-btns-two">
+					<div class="box-btns-two" th:if="${ !#lists.isEmpty(item.seckillVos) && !#strings.isEmpty(item.seckillVos[0].uuid)}">
+						<a href="" id="seckill" th:attr="skuId=${item.info.skuId},sessionId=${item.seckillVos[0].promotionSessionId},code=${item.seckillVos[0].uuid}">
+							立即抢购
+						</a>
+					</div>
+					<div class="box-btns-two" th:if="${ #lists.isEmpty(item.seckillVos)|| #strings.isEmpty(item.seckillVos[0].uuid)}">
 						<a href="" id="addToCartA" th:attr="skuId=${item.info.skuId}">
 							加入购物车
 						</a>
@@ -1343,10 +1355,30 @@
 	    location.href="http://car.gulimall.com/addToCart?skuId="+skuId+"&count="+count
 
 	    return false;
-
-
-
     })
+
+    $("#seckill").click(function () {
+       var isLogin=[[${session.loginUser==null}]];
+       console.log(isLogin);
+       if  (!isLogin)
+       {
+           let count = $("#numInput").val();
+           let killId = $(this).attr("sessionId")+"_"+$(this).attr("skuId");
+           let  code= $(this).attr("code");
+           location.href="http://seckill.gulimall.com/kill?killId="+killId+"&code="+code+"&count="+count
+
+
+       }else
+       {
+
+           alert("请先登录");
+       }
+
+
+
+        return false;
+    })
+
 
 
 </script>

@@ -8,7 +8,7 @@ spring:
     port: 6379
   session:
     store-type: redis
-    timeout: 30h
+    timeout: 50m
   main:
     allow-circular-references: true
 

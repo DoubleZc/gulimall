@@ -1,6 +1,7 @@
 package com.zcx.gulimall.coupon.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -41,7 +42,17 @@ public class SeckillSessionController {
 
         return R.ok().put("page", page);
     }
-
+    
+    
+    
+    
+    @RequestMapping("/getskulate3days")
+    public R getSkuLate3Dys(){
+       return  seckillSessionService.getSkuLate3Dys();
+    }
+    
+    
+    
 
     /**
      * 信息

@@ -6,6 +6,7 @@ public enum MqStatus
 	TO_EXCHANGE_ERROR(1),
 	TO_QUEUE_ERROR(2),
 	SUCCESS(3),
+	RECEIVE(4),
 	;
 	
 	private final Integer code;

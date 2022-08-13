@@ -1,0 +1,11 @@
+spring:
+  cloud:
+    nacos:
+      config:
+        namespace: order
+        server-addr: 192.168.182.128:8848
+        extension-configs:
+          - data-id: alipay.yaml
+            refush: true
+      discovery:
+        server-addr: 192.168.182.128:8848

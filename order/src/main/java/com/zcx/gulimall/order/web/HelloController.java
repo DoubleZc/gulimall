@@ -35,11 +35,6 @@ public class HelloController
 	{
 
 		
-		OrderEntity orderEntity=new OrderEntity();
-		orderEntity.setOrderSn(UUID.randomUUID().toString());
-		orderEntity.setModifyTime(new Date());
-		mqFeignService.sendMessage(new MqTo(OrderConstant.OrderMQ.EXCHANGE,OrderConstant.RouteKey.TO_DELAY_QUEUE.key,orderEntity));
-		
 		return "OK";
 	}
 	

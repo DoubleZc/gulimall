@@ -141,7 +141,6 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 		List<WareSkuEntity> list = list(wrapper);
 		if (list != null) {
 			Map<Long, Integer> collect = list.stream().collect(Collectors.toMap(WareSkuEntity::getSkuId, WareSkuEntity::getSumStock));
-			System.out.println(collect);
 			return collect;
 		} else
 			return null;
@@ -244,6 +243,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 			wareOrderTaskDetailService.removeBatchByIds(detailIds);
 			wareOrderTaskService.removeById(to.getId());
 			//减库存
+			log.warn("{}减库存",orderSn);
 			list.forEach(baseMapper::updateUnlock);
 		}
 	}
@@ -263,6 +263,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 		
 		
 		List<WareOrderTaskDetailEntity> list = wareOrderTaskDetailService.list(new LambdaQueryWrapper<WareOrderTaskDetailEntity>().eq(WareOrderTaskDetailEntity::getTaskId, one.getId()));
+		log.warn("减库存");
 		list.forEach(baseMapper::updateUnlock);
 	}
 	

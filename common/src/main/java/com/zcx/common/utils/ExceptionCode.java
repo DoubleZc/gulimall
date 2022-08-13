@@ -33,7 +33,13 @@ public enum ExceptionCode {
     
     //消息队列错误
     CLASS_ERROR(40001,"类型转换异常，类型不一致"),
-    MQ_ERROR(40001,"消息发送异常"),
+    MQ_ERROR(40002,"消息发送异常"),
+    
+    
+    
+    //秒杀错误
+    K_TIME_ERROR(50001,"该商品不在秒杀时间"),
+    K_CODE_ERROR(50002,"验证码不一致"),
     
 
 

@@ -16,7 +16,7 @@ import java.util.Map;
 
 
 @Slf4j
-@RestControllerAdvice(basePackages = "com.zcx.gulimall.web")
+@RestControllerAdvice(basePackages = "com.zcx.gulimall.com.zcx.gulimall.member.web")
 public class CosException {
 	@ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
 	public R handleValidException(BindException exception) {

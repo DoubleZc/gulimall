@@ -1,5 +1,6 @@
 package com.zcx.gulimall.coupon.service.impl;
 
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -18,9 +19,17 @@ public class SeckillSkuRelationServiceImpl extends ServiceImpl<SeckillSkuRelatio
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
+        String promotionSessionId = params.get("promotionSessionId").toString();
+        QueryWrapper<SeckillSkuRelationEntity> wrapper = new QueryWrapper<>();
+        if (Strings.isNotEmpty(promotionSessionId))
+        {
+            wrapper.eq("promotion_session_id",Long.valueOf(promotionSessionId));
+        }
+    
+    
         IPage<SeckillSkuRelationEntity> page = this.page(
                 new Query<SeckillSkuRelationEntity>().getPage(params),
-                new QueryWrapper<SeckillSkuRelationEntity>()
+                wrapper
         );
 
         return new PageUtils(page);

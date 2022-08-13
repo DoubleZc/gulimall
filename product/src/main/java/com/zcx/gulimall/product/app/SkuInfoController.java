@@ -55,6 +55,7 @@ public class SkuInfoController {
     @RequestMapping("/infos")
     public R infos(@RequestBody List<Long> skuIds){
         List<SkuInfoEntity> skuInfos = skuInfoService.getByIds(skuIds);
+        
         return R.ok().put("skuInfos", skuInfos);
     }
     

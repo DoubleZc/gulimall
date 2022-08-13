@@ -20,8 +20,7 @@ public class SkuItemVo
 	List<SpuItemBaseAttr>groupAttrs;
 	boolean hasStock=true;
 	List<SkuSaleAttr> skuSaleAttrs;
-
-
+	List<SeckillVo> seckillVos;
 
 
 	@Data

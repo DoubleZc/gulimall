@@ -12,8 +12,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import org.apache.http.HttpStatus;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * 返回数据
@@ -99,10 +102,34 @@ public class R extends HashMap<String, Object> {
 	public <T> T getData(String key,TypeReference<T> t)
 	{
 		Object o = get(key);
-		
 		String s = JSON.toJSONString(o);
 		return JSON.parseObject(s, t);
 	}
+	
+	
+	public static <T> Map<String, List<T>> torMap(List<T> list, Function<T,String> keyFun)
+	{
+		Map <String,List<T>> map = new HashMap<>();
+		list.forEach(
+				i->
+				{
+					String key = keyFun.apply(i);
+					if (map.containsKey(key))
+					{
+						List<T> ts = map.get(key);
+						ts.add(i);
+					}else
+					{
+						List<T>ts=new ArrayList<>();
+						ts.add(i);
+						map.put(key,ts);
+					}
+				}
+		);
+		return map;
+	}
+	
+	
 	
 	
 }

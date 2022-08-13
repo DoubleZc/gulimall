@@ -42,8 +42,25 @@ public class OrderController {
 
         return R.ok().put("page", page);
     }
-
-
+    
+    
+    /***
+     *
+     * 订单分页查询
+     * @param params
+     * @return
+     */
+    @RequestMapping("/listitem")
+    public R listitem(@RequestBody Map<String, Object> params){
+        PageUtils page = orderService.listItem(params);
+        return R.ok().put("page", page);
+    }
+    
+    
+    
+    
+    
+    
     /**
      * 信息
      */

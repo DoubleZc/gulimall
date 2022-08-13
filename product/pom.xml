@@ -62,7 +62,11 @@
 			<artifactId>spring-session-data-redis</artifactId>
 		</dependency>
 
-
+		<!--redis-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
 
 
 		<!--		缓存管理-->
@@ -72,11 +76,7 @@
 		</dependency>
 
 
-		<!--redis-->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-redis</artifactId>
-		</dependency>
+
 
 		<!-- redisson -->
 		<dependency>
