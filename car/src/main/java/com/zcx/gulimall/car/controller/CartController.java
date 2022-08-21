@@ -26,6 +26,17 @@ public class CartController
 	CartService cartService;
 	
 	@ResponseBody
+	@GetMapping("/test")
+	public String test()
+	{
+		
+		return "张三";
+	}
+	
+	
+	
+	
+	@ResponseBody
 	@GetMapping("/listcart")
 	public List<CartItem> listcart()
 	{
@@ -33,6 +44,12 @@ public class CartController
 		List<CartItem> cartById = cartService.getCartById(msg.getId());
 		return cartById;
 	}
+	
+	
+	
+	
+	
+	
 	
 	
 	

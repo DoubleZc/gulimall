@@ -33,7 +33,7 @@ public class CosCorsConfiguration
 		corsConfiguration.setAllowCredentials(true);
 
 		source.registerCorsConfiguration("/**", corsConfiguration);
-
+		
 
 		return new CorsWebFilter(source);
 

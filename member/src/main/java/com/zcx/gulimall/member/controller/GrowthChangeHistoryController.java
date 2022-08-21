@@ -38,8 +38,8 @@ public class GrowthChangeHistoryController {
   //  @RequiresPermissions("member:growthchangehistory:list")
     public R list(@RequestParam Map<String, Object> params){
         PageUtils page = growthChangeHistoryService.queryPage(params);
-
-        return R.ok().put("page", page);
+        R page1 = R.ok().put("page", page);
+        return page1;
     }
 
 

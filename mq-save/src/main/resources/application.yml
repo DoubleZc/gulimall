@@ -14,7 +14,8 @@ spring:
         acknowledge-mode: manual
     publisher-returns: true
     publisher-confirm-type: correlated
-
+  main:
+    allow-circular-references: true
 
 
   application:

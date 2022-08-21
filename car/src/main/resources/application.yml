@@ -11,7 +11,14 @@ spring:
       content-type: text/html
   main:
     allow-circular-references: true
-
+  cloud:
+    sentinel:
+      transport:
+        dashboard: 192.168.182.128:8333
+        port: 8111
+      log:
+        dir: I://
+      eager: true
 server:
   port: 800
 

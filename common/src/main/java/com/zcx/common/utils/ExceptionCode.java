@@ -42,6 +42,10 @@ public enum ExceptionCode {
     K_CODE_ERROR(50002,"验证码不一致"),
     
 
+    //feign的失败回调
+    TOO_MANY_REQUEST(60001,"请求次数过多"),
+    
+    
 
 
     ;

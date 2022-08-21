@@ -13,6 +13,11 @@
 	<artifactId>common</artifactId>
 	<description>每个微服务的依赖 工具</description>
 
+	<properties>
+		<spring-cloud.version>2021.0.3</spring-cloud.version>
+	</properties>
+
+
 	<dependencies>
 		<!--myabitsplus-->
 		<dependency>
@@ -128,12 +133,35 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
+		<!--链路追踪-->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.cloud</groupId>-->
+<!--			<artifactId>spring-cloud-starter-sleuth</artifactId>-->
+<!--		</dependency>-->
+		<!--链路追踪可视化-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zipkin</artifactId>
+			<version>2.2.8.RELEASE</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpcore</artifactId>
 			<version>4.4.15</version>
 		</dependency>
 	</dependencies>
-
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 </project>

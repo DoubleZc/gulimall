@@ -20,9 +20,16 @@ spring:
   main:
     allow-circular-references: true
 
+
 #实时监控,高版本可以不写
 management:
   endpoints:
     web:
       exposure:
         include: "*"
+logging:
+  level:
+    com.zcx.gulimall: info
+    org.springframework.cloud.openfeign: debug
+    org.springframework.cloud.sleuth: debug
+

@@ -1,5 +1,9 @@
 package com.zcx.gulimall.seckill.service.impl;
 
+import com.alibaba.csp.sentinel.Entry;
+import com.alibaba.csp.sentinel.SphU;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
@@ -79,6 +83,17 @@ public class SeckillServiceImpl implements SeckillService
 		
 	}
 	
+	public List<SeckillSessionVo.SeckillSkuRelationVo> getCurrentSeckillSkusBlock(BlockException exception)
+	{
+
+		return null;
+		
+	}
+	
+	
+	
+	
+	@SentinelResource(blockHandler = "getCurrentSeckillSkusBlock")
 	@Override
 	public List<SeckillSessionVo.SeckillSkuRelationVo> getCurrentSeckillSkus()
 	{
@@ -86,34 +101,45 @@ public class SeckillServiceImpl implements SeckillService
 		Date date = new Date();
 		long time = date.getTime();
 		
-		String key="";
-		try (Cursor<String> cursor = redisTemplate.scan(ScanOptions.scanOptions().match(SESSION_PREFIX+"*").count(1000).build()))
-		{
-			while (cursor.hasNext()) {
-				String next = cursor.next();
-				String replace = next.replace(SESSION_PREFIX, "");
-				String[] s = replace.split("_");
-				if (Long.parseLong(s[0])<time&&time<Long.parseLong(s[1]))
-				{
-					key=next;
-					break;
+		try (Entry entry = SphU.entry("CurrentSeckillSkus")) {
+			// 被保护的业务逻辑
+			log.info("正常业务逻辑");
+			String key="";
+			try (Cursor<String> cursor = redisTemplate.scan(ScanOptions.scanOptions().match(SESSION_PREFIX+"*").count(1000).build()))
+			{
+				while (cursor.hasNext()) {
+					String next = cursor.next();
+					String replace = next.replace(SESSION_PREFIX, "");
+					String[] s = replace.split("_");
+					if (Long.parseLong(s[0])<time&&time<Long.parseLong(s[1]))
+					{
+						key=next;
+						break;
+					}
 				}
 			}
+			List<String> skuIds = redisTemplate.opsForList().range(key, 0, -1);
+			
+			BoundHashOperations<String, String, Object> operations = redisTemplate.boundHashOps(SESSION_SKU_PREFIX);
+			assert skuIds != null;
+			List<Object> objects = operations.multiGet(skuIds);
+			
+			assert objects != null;
+			return objects.stream().map(i -> {
+						return JSON.parseObject(i.toString(), SeckillSessionVo.SeckillSkuRelationVo.class);
+					}
+			).collect(Collectors.toList());
+			
+			
+		} catch (BlockException ex) {
+			// 资源访问阻止，被限流或被降级
+			// 在此处进行相应的处理操作
+			log.info("熔断逻辑");
+			
+			return null;
 		}
 		
-		List<String> skuIds = redisTemplate.opsForList().range(key, 0, -1);
 		
-		BoundHashOperations<String, String, Object> operations = redisTemplate.boundHashOps(SESSION_SKU_PREFIX);
-		assert skuIds != null;
-		List<Object> objects = operations.multiGet(skuIds);
-		
-		
-		
-		assert objects != null;
-		return objects.stream().map(i -> {
-					return JSON.parseObject(i.toString(), SeckillSessionVo.SeckillSkuRelationVo.class);
-				}
-		).collect(Collectors.toList());
 	}
 	
 	@Override

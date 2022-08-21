@@ -7,8 +7,10 @@ spring:
     store-type: redis
   redis:
     host: 192.168.182.128
-
-
+  elasticsearch:
+    uris: 192.168.182.128:9200
+  main:
+    allow-circular-references: true
 
 server:
   port: 600

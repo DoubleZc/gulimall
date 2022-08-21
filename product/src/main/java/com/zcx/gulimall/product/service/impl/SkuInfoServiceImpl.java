@@ -111,7 +111,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
 
 
-	@Cacheable(value = {"product"},key = "#skuId")
+	//@Cacheable(value = {"product"},key = "#skuId")
 	@Override
 	public SkuItemVo item(Long skuId)
 	{

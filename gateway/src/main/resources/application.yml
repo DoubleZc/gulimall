@@ -11,10 +11,20 @@ spring:
             #          url为路由地址 baidu为携带参数，若携带参数有则路由
             - Query=url,baidu
 
+
+#
+#        - id : test
+#          uri: lb://gulimall-product
+#          predicates:
+#            - Cus=token
+#          filters:
+#            - RedirectTo=302, lb://gulimall-product
+
+
         - id: product
           uri: lb://gulimall-product
           predicates:
-              - Path=/api/product/**,/hello
+              - Path=/api/product/**
           filters:
               - RewritePath=/api(?<segment>/?.*),$\{segment}
 
@@ -54,16 +64,16 @@ spring:
 
 
 
-        - id: admin_route
-          #        负载均衡，后为nacos服务名
-          uri: lb://renren-fast
-          #          断言地址是否是已/api/开头
-          predicates:
-            - Path=/api/**
-          #            过滤器，将路径重写
-          #          /api/**  ->   /renren-fast/***
-          filters:
-            - RewritePath=/api(?<segment>/?.*),/renren-fast$\{segment}
+#        - id: admin_route
+#          #        负载均衡，后为nacos服务名
+#          uri: lb://renren-fast
+#          #          断言地址是否是已/api/开头
+#          predicates:
+#            - Path=/api/**
+#          #            过滤器，将路径重写
+#          #          /api/**  ->   /renren-fast/***
+#          filters:
+#            - RewritePath=/api(?<segment>/?.*),/renren-fast$\{segment}
 
         - id: nginx_auth
           uri: lb://auth-server
@@ -111,8 +121,6 @@ spring:
           predicates:
             #nginx代理给网关会丢掉host信息,配置nginx文件设置上host
             - Host=**.gulimall.com,gulimall.com
-
-
 
 
 

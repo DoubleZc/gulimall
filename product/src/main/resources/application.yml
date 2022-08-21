@@ -32,7 +32,9 @@ spring:
     allow-circular-references: true
 
 
-
+feign:
+  sentinel:
+    enabled: true
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/*/*.xml
@@ -47,7 +49,10 @@ server:
   port: 500
 logging:
   level:
-    com.zcx.gulimall: error
+    com.zcx.gulimall: info
+    org.springframework.cloud.openfeign: debug
+    org.springframework.cloud.sleuth: debug
+
 gulimall:
   thread:
     core-size: 20
@@ -55,3 +60,4 @@ gulimall:
     keep-alive-time: 15
     queue-size: 10000
 
+#开启链路追踪日志
